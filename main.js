@@ -2,7 +2,8 @@ var cnv;
 var toPlay = {
    posX: 25,
    posY: 25,
-   size: 50,
+   width: 100,
+   height: 25,
    isHovered: false,
    toPage: "play.html"
 };
@@ -38,7 +39,9 @@ function drawButtons(){
          stroke(coolors.gray);
          fill(coolors.dblue);
       }
-      rect(b.posX, b.posY, b.size, b.size);
+      b.posX = (windowWidth-b.width)/2;
+      rect(b.posX, b.posY, b.width, b.height);
+      // rect(b.posX, b.posY, b.size, b.size);
    }
 }
 function checkHover(){
@@ -64,7 +67,7 @@ function mousePressed() {
       var x = mouseX;
       var y = mouseY;
       var b = buttons[i];
-      if(x>b.posX && x<b.posX+b.size && y>b.posY && y<b.posY+b.size){
+      if(x>b.posX && x<b.posX+b.width && y>b.posY && y<b.posY+b.height){
          document.location.href = b.toPage;
       }
    }
