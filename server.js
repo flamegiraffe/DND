@@ -36,7 +36,7 @@ app.use(parser.urlencoded({extended: true}));
 app.get('/', (req, res) => {
   // req is the request, res is the resolution (packet sent back)
   // res can send a file with .sendFile, that can be an html
-  res.sendFile(path.resolve(__dirname+'/index.html'));
+  res.sendFile(path.resolve(__dirname+'/main.html'));
   // res.send('Hello Universe!');
 });
 

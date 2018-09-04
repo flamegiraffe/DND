@@ -4,7 +4,6 @@ var gridSpacing = 50;
 var zoomSpeed = 1;
 var xOff = 0;
 var yOff = 0;
-var white, black, gray, blue;
 var hX, hY;
 var barbImg;
 var hiLi = {
@@ -14,13 +13,19 @@ var hiLi = {
 };
 
 var characters = [];
+var coolors = {};
 
 function preload(){
    barbImg = loadImage('assets/barbarian.png');
+   coolors.white = color(245, 240, 246);
+   coolors.black = color(28, 29, 32);
+   coolors.gray = color(220, 220, 220);
+   coolors.blue = color(42, 183, 202);
+   coolors.dblue = color(0, 72, 124);
 }
 
+
 function setup() {
-   setupColors();
    setupChars();
    cnv = createCanvas(windowWidth, windowHeight);
    redrawAll();
@@ -36,13 +41,6 @@ function setupChars(){
    });
 }
 
-function setupColors(){
-   white = color(245, 240, 246);
-   black = color(28, 29, 32);
-   gray = color(220, 220, 220);
-   blue = color(42, 183, 202);
-}
-
 function moveGrid(){
    redrawAll();
 }
@@ -54,7 +52,7 @@ function draw() {
 }
 
 function drawGrid(){
-   stroke(gray);
+   stroke(coolors.gray);
    for(var i=0; i<(windowWidth/gridSpacing); i++){
       line(i*gridSpacing, 0, i*gridSpacing, windowHeight);
    }
@@ -73,16 +71,16 @@ function drawChars(){
 }
 function drawHiLi(){
    if(hiLi.isHigh){
-      stroke(blue);
+      stroke(coolors.blue);
       strokeWeight(2);
-      fill(white);
+      fill(coolors.white);
       rect((hiLi.posX+xOff)*gridSpacing, (hiLi.posY+yOff)*gridSpacing, gridSpacing, gridSpacing);
       strokeWeight(1);
    }
 }
 function redrawAll(){
    clear();
-   background(white);
+   background(coolors.white);
    drawGrid();
    drawHiLi();
    drawChars();
@@ -111,7 +109,6 @@ function mousePressed(){
    redrawAll();
 }
 function keyPressed(){
-   print(keyCode);
    if(keyCode==187){ //+
       gridSpacing += zoomSpeed;
       // drawGrid();
