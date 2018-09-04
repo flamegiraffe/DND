@@ -39,6 +39,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname+'/main.html'));
   // res.send('Hello Universe!');
 });
+app.get('/play', (req, res) => {
+  // req is the request, res is the resolution (packet sent back)
+  // res can send a file with .sendFile, that can be an html
+  res.sendFile(path.resolve(__dirname+'/play.html'));
+  // res.send('Hello Universe!');
+});
 
 // connection event emitted when something connects to the websocket server
 io.on('connection', function(socket) {

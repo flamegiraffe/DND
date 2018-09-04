@@ -5,7 +5,7 @@ var toPlay = {
    width: 100,
    height: 25,
    isHovered: false,
-   toPage: "play.html"
+   toPage: "play"
 };
 var buttons = [toPlay];
 
