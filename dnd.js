@@ -14,6 +14,8 @@ var hiLi = {
 var buttons = [];
 var buttonProps = [];
 var characters = [];
+var walls = [];
+
 var showMenuButton ={
    showMenu: false,
    posX: 10,
@@ -38,12 +40,24 @@ var editButton ={
    height: 30,
    text: "Edit",
    show: false,
+   firstClick: true,
    fnc: function(butt) {
       this.editWalls = !this.editWalls;
-      (this.editWalls) ? butt.style('background-color', coolors.blue) : butt.style('background-color', coolors.gray);
+      if(this.editWalls){
+         butt.style('background-color', coolors.blue)
+         this.firstClick = true;
+      }else{
+         butt.style('background-color', coolors.gray);
+         building.wallStarted = false;
+      }
    }
 };
-
+var building ={
+   wallStarted: false,
+   firstCornerX: 0,
+   firstCornerY: 0,
+   wallWidth : 4
+};
 function preload() {
    barbImg = loadImage( 'assets/barbarian.png' );
    setupCoolors();
@@ -55,6 +69,7 @@ function setup() {
    setupButtons();
    redrawAll();
 }
+
 function setupButtons(){
    buttonProps.push(showMenuButton);
    buttonProps.push(editButton);
@@ -70,15 +85,8 @@ function setupButtons(){
       (bp.show) ? button.show() : button.hide();
       buttons.push(button);
    });
-   // var button = createButton(editButton.text);
-   // button.position(editButton.posX, editButton.posY);
-   // button.size(editButton.width, editButton.height);
-   // editButton.myButton = button;
-   // button.style('background-color', coolors.gray);
-   // button.style('outline', 'none');
-   // button.mousePressed(function () {editButton.fnc(button);});
-   // buttons.push(button);
 }
+
 function setupChars() {
    characters.push({ //barb
       posX : 10,
@@ -144,10 +152,21 @@ function drawMenu(){
 
 }
 
+function drawWalls(){
+   walls.forEach(w => {
+      strokeWeight(building.wallWidth);
+      stroke(coolors.black);
+      fill(coolors.black);
+      line((w.x1+xOff)*gridSpacing, (w.y1+xOff)*gridSpacing, (w.x2+xOff)*gridSpacing, (w.y2+xOff)*gridSpacing);
+      strokeWeight(1);
+   });
+}
+
 function redrawAll() {
    clear();
    background( coolors.white );
    drawGrid();
+   drawWalls();
    drawHiLi();
    drawChars();
    drawMenu();
@@ -156,23 +175,43 @@ function redrawAll() {
 function mousePressed() {
    var gx = Math.floor(mouseX / gridSpacing) - xOff;
    var gy = Math.floor(mouseY / gridSpacing) - yOff;
-   var clickedOnChar = false;
-   characters.forEach(character => {
-      if( gx == character.posX && gy == character.posY )
-         clickedOnChar = true;
-   });
-   if( clickedOnChar ) {
-      hiLi.posX = gx;
-      hiLi.posY = gy;
-      hiLi.isHigh = true;
-   } else {
-      characters.forEach(character => {
-         if(hiLi.posX == character.posX && hiLi.posY == character.posY) {
-            hiLi.isHigh = false;
-            character.posX = gx;
-            character.posY = gy;
+   if(editButton.editWalls){
+      if(!editButton.firstClick){
+         if(building.wallStarted){
+            building.wallStarted = false;
+            walls.push({
+               x1: building.firstCornerX,
+               y1: building.firstCornerY,
+               x2: gx,
+               y2: gy
+            });
+         }else{
+            building.firstCornerX = gx;
+            building.firstCornerY = gy;
+            building.wallStarted = true;
          }
+      }else{
+         editButton.firstClick = false;
+      }
+   }else{
+      var clickedOnChar = false;
+      characters.forEach(character => {
+         if( gx == character.posX && gy == character.posY )
+            clickedOnChar = true;
       });
+      if( clickedOnChar ) {
+         hiLi.posX = gx;
+         hiLi.posY = gy;
+         hiLi.isHigh = true;
+      } else {
+         characters.forEach(character => {
+            if(hiLi.posX == character.posX && hiLi.posY == character.posY) {
+               hiLi.isHigh = false;
+               character.posX = gx;
+               character.posY = gy;
+            }
+         });
+      }
    }
    redrawAll();
 }
