@@ -26,7 +26,15 @@ var showMenuButton ={
    show: true,
    fnc: function(butt) {
       this.showMenu = !this.showMenu;
-      (this.showMenu) ? butt.style('background-color', coolors.blue) : butt.style('background-color', coolors.gray);
+      if(this.showMenu){
+         butt.style('background-color', coolors.blue);
+      }else{
+         editButton.editWalls = false;
+         buttons.forEach(b => {
+            b.style('background-color', coolors.gray);
+         });
+      }
+
       buttons.forEach(b => {
          this.showMenu ? b.show() : (b!==butt ? b.hide() : b.show());
       });
@@ -172,46 +180,67 @@ function redrawAll() {
    drawMenu();
 }
 
-function mousePressed() {
-   var gx = Math.floor(mouseX / gridSpacing) - xOff;
-   var gy = Math.floor(mouseY / gridSpacing) - yOff;
-   if(editButton.editWalls){
-      if(!editButton.firstClick){
-         if(building.wallStarted){
-            building.wallStarted = false;
+function editWallsClick(gx, gy){
+   if(!editButton.firstClick){
+      if(building.wallStarted){
+         building.wallStarted = false;
+         var remove = false;
+         for(var i = 0; i<walls.length; i++){
+            w = walls[i];
+            if((w.x1 === building.firstCornerX && w.x2 === gx) || (w.x2 === building.firstCornerX && w.x1 === gx)){
+               if((w.y1 === building.firstCornerY && w.y2 === gy) || (w.y2 === building.firstCornerY && w.y1 === gy)){
+                  walls.splice(i, 1);
+                  remove = true;
+               }
+            }
+         }
+         if(!remove){
             walls.push({
                x1: building.firstCornerX,
                y1: building.firstCornerY,
                x2: gx,
                y2: gy
             });
-         }else{
-            building.firstCornerX = gx;
-            building.firstCornerY = gy;
-            building.wallStarted = true;
          }
+
       }else{
-         editButton.firstClick = false;
+         building.firstCornerX = gx;
+         building.firstCornerY = gy;
+         building.wallStarted = true;
       }
    }else{
-      var clickedOnChar = false;
+      editButton.firstClick = false;
+   }
+}
+
+function playClick(gx, gy){
+   var clickedOnChar = false;
+   characters.forEach(character => {
+      if( gx == character.posX && gy == character.posY )
+         clickedOnChar = true;
+   });
+   if( clickedOnChar ) {
+      hiLi.posX = gx;
+      hiLi.posY = gy;
+      hiLi.isHigh = true;
+   } else {
       characters.forEach(character => {
-         if( gx == character.posX && gy == character.posY )
-            clickedOnChar = true;
+         if(hiLi.posX == character.posX && hiLi.posY == character.posY) {
+            hiLi.isHigh = false;
+            character.posX = gx;
+            character.posY = gy;
+         }
       });
-      if( clickedOnChar ) {
-         hiLi.posX = gx;
-         hiLi.posY = gy;
-         hiLi.isHigh = true;
-      } else {
-         characters.forEach(character => {
-            if(hiLi.posX == character.posX && hiLi.posY == character.posY) {
-               hiLi.isHigh = false;
-               character.posX = gx;
-               character.posY = gy;
-            }
-         });
-      }
+   }
+}
+
+function mousePressed() {
+   var gx = Math.floor(mouseX / gridSpacing) - xOff;
+   var gy = Math.floor(mouseY / gridSpacing) - yOff;
+   if(editButton.editWalls){
+      editWallsClick(gx, gy);
+   }else{
+      playClick(gx, gy);
    }
    redrawAll();
 }
