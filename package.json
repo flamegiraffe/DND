@@ -5,7 +5,7 @@
   "author": "lul",
   "license": "GPL-3.0",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server/server.js"
   },
   "dependencies": {
     "body-parser": "^1.18.3",

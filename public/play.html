@@ -12,7 +12,6 @@
       var ws = io.connect('http://' + h);
       ws.on('connected', msg => {
         console.log(msg);
-        // window.alert(msg); // delete eventually because unneeded
       });
       // send stuff to websocket server
       // ws.send(data)
@@ -21,11 +20,11 @@
         // console.log(msg) // do whatever
       // })
     </script>
-    <script src="libraries/p5.js"></script>
-    <script src="libraries/p5.dom.js"></script>
-    <script src="libraries/p5.sound.js"></script>
-    <!-- <script src="dndchar.js"></script> -->
+    <script src="scripts/lib/p5.js"></script>
+    <script src="scripts/lib/p5.dom.js"></script>
+    <script src="scripts/lib/p5.sound.js"></script>
     <!-- <script src="colorPalette.js"></script> -->
+    <script src="dndchar.js"></script>
     <script src="dnd.js"></script>
   </body>
 </html>

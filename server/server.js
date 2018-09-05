@@ -18,7 +18,6 @@ const io = require('socket.io')(server);
 // access this server with http://ip:port/
 // this case http://localshot:5000/
 server.listen(process.env.PORT || 5000);
-app.use(express.static(__dirname));
 
 // cross origin requests accepted
 app.use(cors());
@@ -28,7 +27,7 @@ app.use(parser.urlencoded({extended: true}));
 // if you want to serve all files from a certain (this) directory
 // then any file in the directory can be accessed with
 // http://ip:port/filename.extension
-// app.use(express.static(path.resolve(__dirname))))
+// app.use(express.static(path.resolve(__dirname,'../public')))
 
 // what happens when server gets a GET request to path * (any)
 // path can be replaced with / or anything else
@@ -36,14 +35,10 @@ app.use(parser.urlencoded({extended: true}));
 app.get('/', (req, res) => {
   // req is the request, res is the resolution (packet sent back)
   // res can send a file with .sendFile, that can be an html
-  res.sendFile(path.resolve(__dirname+'/main.html'));
-  // res.send('Hello Universe!');
+  res.sendFile(path.resolve(__dirname,'../public/index.html'));
 });
 app.get('/play', (req, res) => {
-  // req is the request, res is the resolution (packet sent back)
-  // res can send a file with .sendFile, that can be an html
-  res.sendFile(path.resolve(__dirname+'/play.html'));
-  // res.send('Hello Universe!');
+  res.sendFile(path.resolve(__dirname,'../public/play.html'));
 });
 
 // connection event emitted when something connects to the websocket server
