@@ -157,7 +157,7 @@ function drawWalls(){
       strokeWeight(building.wallWidth);
       stroke(coolors.black);
       fill(coolors.black);
-      line((w.x1+xOff)*gridSpacing, (w.y1+xOff)*gridSpacing, (w.x2+xOff)*gridSpacing, (w.y2+xOff)*gridSpacing);
+      line((w.x1+xOff)*gridSpacing, (w.y1+yOff)*gridSpacing, (w.x2+xOff)*gridSpacing, (w.y2+yOff)*gridSpacing);
       strokeWeight(1);
    });
 }
