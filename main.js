@@ -9,14 +9,9 @@ var toPlay = {
 };
 var buttons = [toPlay];
 
-var coolors = {};
 
 function preload(){
-   coolors.white = color(245, 240, 246);
-   coolors.black = color(28, 29, 32);
-   coolors.gray = color(220, 220, 220);
-   coolors.blue = color(42, 183, 202);
-   coolors.dblue = color(0, 72, 124);
+   setupCoolors();
 }
 
 function setup(){
@@ -68,6 +63,10 @@ function mousePressed() {
       var y = mouseY;
       var b = buttons[i];
       if(x>b.posX && x<b.posX+b.width && y>b.posY && y<b.posY+b.height){
+         var inp = prompt("Please enter password", "");
+         if (inp != null) {
+           console.log(inp);
+         }
          document.location.href = b.toPage;
       }
    }

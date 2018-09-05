@@ -11,37 +11,52 @@ var hiLi = {
    posX: 0,
    posY: 0
 };
-
+var buttons = [];
 var characters = [];
-var coolors = {};
+var editButton ={
+   editWalls: false,
+   posX: 25,
+   posY: 100,
+   width: 50,
+   height: 50,
+   text: "Edit",
+   fnc: function(butt) {
+      this.editWalls = !this.editWalls;
+      (this.editWalls) ? butt.style('background-color', coolors.blue) : butt.style('background-color', coolors.gray);
+      // butt.style('background-color', coolors.blue);
+   }
+};
 
-function preload(){
-   barbImg = loadImage('assets/barbarian.png');
-   coolors.white = color(245, 240, 246);
-   coolors.black = color(28, 29, 32);
-   coolors.gray = color(220, 220, 220);
-   coolors.blue = color(42, 183, 202);
-   coolors.dblue = color(0, 72, 124);
+function preload() {
+   barbImg = loadImage( 'assets/barbarian.png' );
+   setupCoolors();
 }
-
 
 function setup() {
    setupChars();
-   cnv = createCanvas(windowWidth, windowHeight);
+   cnv = createCanvas( windowWidth, windowHeight );
+   setupButtons();
    redrawAll();
 }
-
-function setupChars(){
-   // var barb = new dndchar(barbImg, 10, 5);
-   // characters.push(barb);
-   characters.push({
-      image: barbImg,
-      posX: 10,
-      posY: 5
+function setupButtons(){
+   var button = createButton(editButton.text);
+   button.position(editButton.posX, editButton.posY);
+   button.size(editButton.width, editButton.height);
+   editButton.myButton = button;
+   button.style('background-color', coolors.gray);
+   button.style('outline', 'none');
+   button.mousePressed(function () {editButton.fnc(button);});
+   buttons.push(button);
+}
+function setupChars() {
+   characters.push({ //barb
+      posX : 10,
+      posY: 5,
+      image: barbImg
    });
 }
 
-function moveGrid(){
+function moveGrid() {
    redrawAll();
 }
 
@@ -51,84 +66,93 @@ function draw() {
    cnv.position(x, y);
 }
 
-function drawGrid(){
-   stroke(coolors.gray);
-   for(var i=0; i<(windowWidth/gridSpacing); i++){
-      line(i*gridSpacing, 0, i*gridSpacing, windowHeight);
+function drawGrid() {
+   stroke( coolors.gray );
+   for(var i = 0; i < (windowWidth / gridSpacing); i++) {
+      line(i * gridSpacing, 0, i * gridSpacing, windowHeight);
    }
-   for(var i=0; i<(windowHeight/gridSpacing); i++){
-      line(0, i*gridSpacing, windowWidth, i*gridSpacing);
+   for(var i = 0; i < (windowHeight / gridSpacing); i++) {
+      line(0, i * gridSpacing, windowWidth, i * gridSpacing);
    }
 }
 
-function drawChars(){
-   // for(var i=0; i<characters.length; i++){
-   //    image(characters[i].getImage(), (characters[i].getPosX()+xOff)*gridSpacing, (characters[i].getPosY()+yOff)*gridSpacing, gridSpacing, gridSpacing);
-   // }
-   for(var i=0; i<characters.length; i++){
-      image(characters[i].image, (characters[i].posX+xOff)*gridSpacing, (characters[i].posY+yOff)*gridSpacing, gridSpacing, gridSpacing);
+function drawChars() {
+   characters.forEach(character => {
+      image(character.image,
+            (character.posX + xOff) * gridSpacing,
+            (character.posY + yOff) * gridSpacing,
+            gridSpacing,
+            gridSpacing);
+   });
+}
+
+function drawHiLi() {
+   if( hiLi.isHigh ) {
+      stroke( coolors.blue );
+      strokeWeight( 2 );
+      fill( coolors.white );
+      rect( (hiLi.posX + xOff) * gridSpacing,
+            (hiLi.posY + yOff) * gridSpacing,
+            gridSpacing,
+            gridSpacing);
+      strokeWeight( 1 );
    }
 }
-function drawHiLi(){
-   if(hiLi.isHigh){
-      stroke(coolors.blue);
-      strokeWeight(2);
-      fill(coolors.white);
-      rect((hiLi.posX+xOff)*gridSpacing, (hiLi.posY+yOff)*gridSpacing, gridSpacing, gridSpacing);
-      strokeWeight(1);
-   }
-}
-function redrawAll(){
+
+function redrawAll() {
    clear();
-   background(coolors.white);
+   background( coolors.white );
    drawGrid();
    drawHiLi();
    drawChars();
 }
-function mousePressed(){
-   var gx = Math.floor(mouseX/gridSpacing)-xOff;
-   var gy = Math.floor(mouseY/gridSpacing)-yOff;
+
+function mousePressed() {
+   var gx = Math.floor(mouseX / gridSpacing) - xOff;
+   var gy = Math.floor(mouseY / gridSpacing) - yOff;
    var clickedOnChar = false;
-   for(var i=0; i<characters.length; i++){
-      if(gx == characters[i].posX && gy == characters[i].posY){
+   characters.forEach(character => {
+      if( gx == character.posX && gy == character.posY )
          clickedOnChar = true;
-         hiLi.posX = gx;
-         hiLi.posY = gy;
-         hiLi.isHigh = true;
-      }
-   }
-   if(!clickedOnChar){
-      for(var i=0; i<characters.length; i++){
-         if(hiLi.posX == characters[i].posX && hiLi.posY == characters[i].posY){
+   });
+   if( clickedOnChar ) {
+      hiLi.posX = gx;
+      hiLi.posY = gy;
+      hiLi.isHigh = true;
+   } else {
+      characters.forEach(character => {
+         if(hiLi.posX == character.posX && hiLi.posY == character.posY) {
             hiLi.isHigh = false;
-            characters[i].posX = gx;
-            characters[i].posY = gy;
+            character.posX = gx;
+            character.posY = gy;
          }
-      }
+      });
    }
    redrawAll();
 }
-function keyPressed(){
-   if(keyCode==187){ //+
-      gridSpacing += zoomSpeed;
-      // drawGrid();
-   }else if(keyCode == 189){ //-
-      if(gridSpacing>zoomSpeed){
-         gridSpacing -= zoomSpeed;
-         // drawGrid();
-      }
-   }else if(keyCode == 37){//left
-      xOff++;
-      // drawChars();
-   }else if(keyCode == 39){//right
-      xOff--;
-      // drawChars();
-   }else if(keyCode == 38){//up
-      yOff++;
-      // drawChars();
-   }else if(keyCode == 40){//down
-      yOff--;
-      // drawChars();
+
+function keyPressed() {
+   switch( keyCode ) {
+      case 187: // +
+         gridSpacing += zoomSpeed;
+         break;
+      case 189: // -
+         gridSpacing > zoomSpeed ? gridSpacing -= zoomSpeed : null;
+         break;
+      case 37: // left
+         xOff++;
+         break;
+      case 39: // right
+         xOff--;
+         break;
+      case 38: // up
+         yOff++;
+         break;
+      case 40: // down
+         yOff--;
+         break;
+      default:
+         break;
    }
    redrawAll();
 }
