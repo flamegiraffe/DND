@@ -12,18 +12,35 @@ var hiLi = {
    posY: 0
 };
 var buttons = [];
+var buttonProps = [];
 var characters = [];
-var editButton ={
-   editWalls: false,
-   posX: 25,
+var showMenuButton ={
+   showMenu: false,
+   posX: 10,
    posY: 100,
    width: 50,
-   height: 50,
+   height: 30,
+   text: "More",
+   show: true,
+   fnc: function(butt) {
+      this.showMenu = !this.showMenu;
+      (this.showMenu) ? butt.style('background-color', coolors.blue) : butt.style('background-color', coolors.gray);
+      buttons.forEach(b => {
+         this.showMenu ? b.show() : (b!==butt ? b.hide() : b.show());
+      });
+   }
+};
+var editButton ={
+   editWalls: false,
+   posX: 10,
+   posY: 150,
+   width: 50,
+   height: 30,
    text: "Edit",
+   show: false,
    fnc: function(butt) {
       this.editWalls = !this.editWalls;
       (this.editWalls) ? butt.style('background-color', coolors.blue) : butt.style('background-color', coolors.gray);
-      // butt.style('background-color', coolors.blue);
    }
 };
 
@@ -39,14 +56,28 @@ function setup() {
    redrawAll();
 }
 function setupButtons(){
-   var button = createButton(editButton.text);
-   button.position(editButton.posX, editButton.posY);
-   button.size(editButton.width, editButton.height);
-   editButton.myButton = button;
-   button.style('background-color', coolors.gray);
-   button.style('outline', 'none');
-   button.mousePressed(function () {editButton.fnc(button);});
-   buttons.push(button);
+   buttonProps.push(showMenuButton);
+   buttonProps.push(editButton);
+   buttonProps.forEach(bp => {
+      var button = createButton(bp.text);
+      button.position(bp.posX, bp.posY);
+      button.size(bp.width, bp.height);
+      bp.myButton = button;
+      button.style('background-color', coolors.white);
+      button.style('outline', 'none');
+      button.style('border', '2px solid ' + coolors.orange);
+      button.mousePressed(function () {bp.fnc(button);});
+      (bp.show) ? button.show() : button.hide();
+      buttons.push(button);
+   });
+   // var button = createButton(editButton.text);
+   // button.position(editButton.posX, editButton.posY);
+   // button.size(editButton.width, editButton.height);
+   // editButton.myButton = button;
+   // button.style('background-color', coolors.gray);
+   // button.style('outline', 'none');
+   // button.mousePressed(function () {editButton.fnc(button);});
+   // buttons.push(button);
 }
 function setupChars() {
    characters.push({ //barb
@@ -99,12 +130,27 @@ function drawHiLi() {
    }
 }
 
+function drawMenu(){
+   strokeWeight( 2 );
+   stroke(coolors.black);
+   fill(coolors.rasp);
+   if(showMenuButton.showMenu){
+      rect(0,90,75,100);
+   }else{
+      rect(0,90,75,50);
+
+   }
+   strokeWeight( 1 );
+
+}
+
 function redrawAll() {
    clear();
    background( coolors.white );
    drawGrid();
    drawHiLi();
    drawChars();
+   drawMenu();
 }
 
 function mousePressed() {
