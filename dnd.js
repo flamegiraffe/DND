@@ -66,6 +66,8 @@ var building ={
    firstCornerY: 0,
    wallWidth : 4
 };
+
+
 function preload() {
    barbImg = loadImage( 'assets/barbarian.png' );
    setupCoolors();
