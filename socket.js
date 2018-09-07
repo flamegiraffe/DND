@@ -6,7 +6,7 @@ function setupSocket(){
    var h;
    location.hostname=='localhost' ? h=location.host : h=location.hostname;
    // connect to websocket server, ws is the socket
-   ws = io.connect('http://' + h);
+   ws = io.connect('https://' + h);
    ws.on('connected', msg => {
       console.log(msg);
       // window.alert(msg); // delete eventually because unneeded
