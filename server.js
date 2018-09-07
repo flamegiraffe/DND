@@ -18,7 +18,7 @@ const io = require('socket.io')(server);
 // var hexCodes = ["bolsap"];
 // var maps = ["map of bolsap"];
 
-var db = [{lobby: "bol", hexCode: "bolsap", map: "map of bol"}];
+var db = [];
 
 // which port to listen on, accepts requests from ALL ip addresses
 // access this server with http://ip:port/
@@ -51,9 +51,6 @@ app.get('/play', (req, res) => {
   res.sendFile(path.resolve(__dirname+'/play.html'));
   // res.send('Hello Universe!');
 });
-app.get(`/bolsap`, (req, res) => {
-  res.sendFile(path.resolve(__dirname+'/play.html'));
-});   //TODO DELETE THIS
 
 app.post('/checkpass', function(req, res) {
    // console.log('server received data');
@@ -83,11 +80,11 @@ app.post('/makelobby', function(req, res) {
       }
    }
    if(!lobbyNameTaken){
-      registerNewLobby(req.body.lobby, req.body.pass);
+      var newHC = registerNewLobby(req.body.lobby, req.body.pass);
       console.log(db);
-      res.send("Lobby registered");
+      res.send({hexCode: newHC, status: 200});
    }else{
-      res.send("Lobby name taken");
+      res.send({hexCode: undefined, status: "Lobby name already taken"});
    }
 });
 
@@ -149,6 +146,7 @@ function registerNewLobby(lobby, pass){
       hexCode: hexC,
       map: `map of ${hexC}`
    });
+   return hexC;
    // lobbies.push(lobby);
    // hexCodes.push(hexC);
    // maps.push(`map of ${hexC}`);
