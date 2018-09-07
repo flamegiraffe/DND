@@ -15,6 +15,7 @@ var buttons = [];
 var buttonProps = [];
 var characters = [];
 var walls = [];
+var characterImages = [];
 
 var showMenuButton ={
    showMenu: false,
@@ -78,9 +79,6 @@ function setup() {
    cnv = createCanvas( windowWidth, windowHeight );
    setupButtons();
    setupSocket();
-   // socketSend('this is a testttt', (resData) => {
-   //    console.log("this s test ", resData);
-   // });
    getMap();
    redrawAll();
 }
@@ -101,6 +99,9 @@ function onServerMessage(msg){
       }else if(msg.request === "updateWalls"){
          walls = msg.map;
          redrawAll();
+      }else if(msg.request === "updateChars"){
+         characters = msg.characters;
+         redrawAll();
       }
    }
 }
@@ -110,6 +111,16 @@ function updateServerWalls(){
       request: "updateWalls",
       hexC: myHexC,
       walls
+   };
+   socketSend(toSend);
+}
+
+function updateServerChars(){
+   var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
+   var toSend = {
+      request: "updateChars",
+      hexC: myHexC,
+      characters
    };
    socketSend(toSend);
 }
@@ -132,10 +143,11 @@ function setupButtons(){
 }
 
 function setupChars() {
+   characterImages.push(barbImg);
    characters.push({ //barb
       posX : 10,
       posY: 5,
-      image: barbImg
+      image: 0
    });
 }
 
@@ -161,7 +173,7 @@ function drawGrid() {
 
 function drawChars() {
    characters.forEach(character => {
-      image(character.image,
+      image(characterImages[character.image],
             (character.posX + xOff) * gridSpacing,
             (character.posY + yOff) * gridSpacing,
             gridSpacing,
@@ -237,9 +249,8 @@ function editWallsClick(gx, gy){
                x2: gx,
                y2: gy
             });
-            updateServerWalls();
          }
-
+         updateServerWalls();
       }else{
          building.firstCornerX = gx;
          building.firstCornerY = gy;
@@ -266,6 +277,7 @@ function playClick(gx, gy){
             hiLi.isHigh = false;
             character.posX = gx;
             character.posY = gy;
+            updateServerChars();
          }
       });
    }

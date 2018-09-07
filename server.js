@@ -86,18 +86,18 @@ app.post('/makelobby', function(req, res) {
 });
 
 app.post('/lobbies/init', function(req, res) {
-   // console.log('server received data');
-   // console.log('body is ',req.body);
-   console.log(req.body);
-   // var jsonr = JSON.parse(req.body);
-   // console.log(jsonr);
-   console.log('server received lobby: ' + req.body.lobby + " and pass: " + req.body.pass);
-   var check = checkHexCode(req.body.lobby, req.body.pass);
-   if(check!==undefined){
-      res.send({hexCode: check, status: 200});
-   }else{
-      res.send({hexCode: undefined, status: "Incorrect password"});
-   }
+   // // console.log('server received data');
+   // // console.log('body is ',req.body);
+   // console.log(req.body);
+   // // var jsonr = JSON.parse(req.body);
+   // // console.log(jsonr);
+   // console.log('server received lobby: ' + req.body.lobby + " and pass: " + req.body.pass);
+   // var check = checkHexCode(req.body.lobby, req.body.pass);
+   // if(check!==undefined){
+   //    res.send({hexCode: check, status: 200});
+   // }else{
+   //    res.send({hexCode: undefined, status: "Incorrect password"});
+   // }
 });
 // connection event emitted when something connects to the websocket server
 io.on('connection', function(socket) {
@@ -130,6 +130,18 @@ io.on('connection', function(socket) {
                   status: "success",
                   request: data.request,
                   map: db[i].map
+               };
+               io.emit('message', toSend);
+            }
+         }
+      }else if(data.request === "updateChars"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               db[i].chars = data.characters;
+               var toSend = {
+                  status: "success",
+                  request: data.request,
+                  characters: db[i].chars
                };
                io.emit('message', toSend);
             }
@@ -185,7 +197,8 @@ function registerNewLobby(lobby, pass){
    db.push({
       lobby,
       hexCode: hexC,
-      map: []
+      map: [],
+      characters: []
    });
    return hexC;
    // lobbies.push(lobby);
