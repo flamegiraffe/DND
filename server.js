@@ -14,10 +14,6 @@ const server = require('http').Server(app);
 // websocket server running on the same port as http
 const io = require('socket.io')(server);
 
-// var lobbies = ["bol"];
-// var hexCodes = ["bolsap"];
-// var maps = ["map of bolsap"];
-
 var db = [];
 
 // which port to listen on, accepts requests from ALL ip addresses
@@ -66,6 +62,7 @@ app.post('/checkpass', function(req, res) {
       res.send({hexCode: undefined, status: "Incorrect password"});
    }
 });
+
 app.post('/makelobby', function(req, res) {
    // console.log('server received data');
    // console.log('body is ',req.body);
@@ -88,6 +85,20 @@ app.post('/makelobby', function(req, res) {
    }
 });
 
+app.post('/lobbies/init', function(req, res) {
+   // console.log('server received data');
+   // console.log('body is ',req.body);
+   console.log(req.body);
+   // var jsonr = JSON.parse(req.body);
+   // console.log(jsonr);
+   console.log('server received lobby: ' + req.body.lobby + " and pass: " + req.body.pass);
+   var check = checkHexCode(req.body.lobby, req.body.pass);
+   if(check!==undefined){
+      res.send({hexCode: check, status: 200});
+   }else{
+      res.send({hexCode: undefined, status: "Incorrect password"});
+   }
+});
 // connection event emitted when something connects to the websocket server
 io.on('connection', function(socket) {
   // socket is the connection to the client
@@ -95,11 +106,41 @@ io.on('connection', function(socket) {
   socket.emit('connected', 'Connected to server!');
   // how the server responds when the client sends a message
   socket.on('message', function(data) {
-    // io.emit sends the event (message) and data to ALL socket connections
-    // ie other clients
-    io.emit('message', data);
-    // just send a confirmation event back to client to signal receive
-    socket.emit('confirmation', data);
+   console.log("socket received", data);
+   // io.emit sends the event (message) and data to ALL socket connections
+   // ie other clients
+   if(data.request!==undefined){
+      console.log("client requested", data.request, "with hexC", data.hexC);
+      if(data.request === "getMap"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               var toSend = {
+                  status: "success",
+                  request: data.request,
+                  map: db[i].map
+               };
+               io.emit('message', toSend);
+            }
+         }
+      }else if(data.request === "updateWalls"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               db[i].map = data.walls;
+               var toSend = {
+                  status: "success",
+                  request: data.request,
+                  map: db[i].map
+               };
+               io.emit('message', toSend);
+            }
+         }
+      }
+   }else{
+      console.log("data.request undefined");
+   }
+   // io.emit('message', data);
+   // just send a confirmation event back to client to signal receive
+   socket.emit('confirmation', data);
   });
   // what happens when a client disconnects, not sure what's the event emitted
   // usually diconnect, close, or exit
@@ -144,7 +185,7 @@ function registerNewLobby(lobby, pass){
    db.push({
       lobby,
       hexCode: hexC,
-      map: `map of ${hexC}`
+      map: []
    });
    return hexC;
    // lobbies.push(lobby);

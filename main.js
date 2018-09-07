@@ -67,7 +67,8 @@ function setupButtons(){
       button.style('background-color', coolors.white);
       button.style('outline', 'none');
       button.style('border', '2px solid ' + coolors.rasp);
-      button.mousePressed(function () {bp.fcn();});
+      button.mousePressed(bp.fcn);
+      // button.mousePressed(function () {bp.fcn();});
       buttons.push(button);
    });
 }

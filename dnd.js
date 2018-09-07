@@ -77,7 +77,41 @@ function setup() {
    setupChars();
    cnv = createCanvas( windowWidth, windowHeight );
    setupButtons();
+   setupSocket();
+   // socketSend('this is a testttt', (resData) => {
+   //    console.log("this s test ", resData);
+   // });
+   getMap();
    redrawAll();
+}
+function getMap(){
+   var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
+   var toSend = {
+      request: "getMap",
+      hexC: myHexC
+   };
+   socketSend(toSend);
+}
+function onServerMessage(msg){
+   console.log("on server message");
+   if(msg.status==="success"){
+      if(msg.request==="getMap"){
+         walls = msg.map;
+         redrawAll();
+      }else if(msg.request === "updateWalls"){
+         walls = msg.map;
+         redrawAll();
+      }
+   }
+}
+function updateServerWalls(){
+   var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
+   var toSend = {
+      request: "updateWalls",
+      hexC: myHexC,
+      walls
+   };
+   socketSend(toSend);
 }
 
 function setupButtons(){
@@ -203,6 +237,7 @@ function editWallsClick(gx, gy){
                x2: gx,
                y2: gy
             });
+            updateServerWalls();
          }
 
       }else{
