@@ -4,9 +4,10 @@ var lobbyBack = {
    width : 0.3,
    height : 0.2,
    hm: 0.3,
-   bufferW: 0.03,
+   bufferW: 0.1,
    bufferH: 0.02,
    lineBuffer: 0.003,
+   strokeWeight: 6,
    lines: 5
 };
 
@@ -56,11 +57,19 @@ var newLobby = {
 var lobbies =[];
 var buttons = [];
 var refreshButton;
-var scrollBar = false;
-var scrollVal = 0;
+var scrollbar = {
+   needScrollbar : false,
+   scrollVal : 0,
+   width: 0.4,
+   barW: 0.8,
+   r : 1
+};
+
+var slider;
+var hero;
 
 function drawLobbyBack(){
-   strokeWeight(5);
+   strokeWeight(lobbyBack.strokeWeight);
    stroke(coolors.black);
    fill(coolors.rasp);
    var w = windowWidth;
@@ -70,22 +79,11 @@ function drawLobbyBack(){
 }
 
 function setupLobbies(){
-   // jQuery.post("/makelobby", {lobby: "bol", pass: "sap"}, (data, status) => {
-   //    // console.log(data);
-   //    if(data.status===200){
-   //       jQuery.post("/lobbies/init", "", (data, status) => {
-   //          // console.log(data);
-   //          if(data.status===200){
-   //             lobbies = data.lobbies;
-   //             setupLobbyButtons();
-   //          }
-   //       });
-   //    }
-   // });
    jQuery.post("/lobbies/init", "", (data, status) => {
       if(data.status===200){
          lobbies = data.lobbies;
          setupLobbyButtons();
+         drawScrollbar();
       }
    });
 }
@@ -97,14 +95,16 @@ function refresh(){
          setupLobbyButtons();
       }
    });
+   drawScrollbar();
 }
 
 function setupRefresh(){
    refreshButton = createButton("↻");
    var w = windowWidth;
    var h = windowHeight;
-   refreshButton.position((w/2) - lobbyBack.width*w+3, h*(lobbyBack.hm + lobbyBack.height)-lobbyBack.bufferW*w-2);
-   refreshButton.size(lobbyBack.bufferW*w, lobbyBack.bufferW*w);
+   var mw = scrollbar.width*lobbyBack.bufferW*w;
+   refreshButton.position((w/2) - lobbyBack.width*w+lobbyBack.strokeWeight/2, h*(lobbyBack.hm + lobbyBack.height)-mw);
+   refreshButton.size(mw-lobbyBack.strokeWeight/2, mw-lobbyBack.strokeWeight/2);
    refreshButton.style('background-color', coolors.white);
    refreshButton.style('outline', 'none');
    refreshButton.style('color', coolors.rasp);
@@ -117,11 +117,13 @@ function setupLobbyButtons(){
    var numOB;
    if(lobbies.length>lobbyBack.lines){
       numOB = lobbyBack.lines;
+      scrollbar.needScrollbar = true;
    }else{
       numOB = lobbies.length;
+      scrollbar.needScrollbar = false;
    }
    for(var i=0; i<numOB; i++){
-      var button = createButton("Lobby name: " + lobbies[i]);
+      let button = createButton("Lobby name: " + lobbies[i]);
       var w = windowWidth;
       var h = windowHeight;
       button.size(
@@ -145,6 +147,103 @@ function setupLobbyButtons(){
       });
       buttons.push(button);
    }
+   setupScrollbar();
+}
+
+function setupScrollbar(){
+   var w = windowWidth;
+   var h = windowHeight;
+   var mw = scrollbar.width*lobbyBack.bufferW*w;
+   // if(scrollbar.needScrollbar){
+   //    scrollbar.r = lobbyBack.lines/lobbies.length;
+   // }else{
+   //    scrollbar.r = 1;
+   // }
+   // fill(coolors.white);
+   // noStroke();
+   // scrollbar.barBack = rect((w/2) + lobbyBack.width*w-mw-lobbyBack.strokeWeight/2, (h*lobbyBack.hm) - lobbyBack.height*h+mw,
+   // mw, lobbyBack.height*2*h-2*mw);
+   // fill(coolors.dblue);
+   // strokeWeight(2);
+   // stroke(coolors.black);
+   // scrollbar.bar = rect(
+   //    (w/2) + lobbyBack.width*w-mw+((1-scrollbar.barW)/2)*mw-lobbyBack.strokeWeight/2,
+   //    (h*lobbyBack.hm) - lobbyBack.height*h+mw,
+   //    mw*scrollbar.barW,
+   //    (lobbyBack.height*2*h-2*mw)*scrollbar.r,
+   //    3);
+   scrollbar.up = createButton("▲");
+   scrollbar.up.position(
+      (w/2) + lobbyBack.width*w-mw-lobbyBack.strokeWeight/2,
+      (h*lobbyBack.hm) - lobbyBack.height*h+lobbyBack.strokeWeight/2);
+   scrollbar.up.size(mw, mw);
+   scrollbar.up.style('background-color', coolors.white);
+   scrollbar.up.style('outline', 'none');
+   scrollbar.up.style('color', coolors.black);
+   scrollbar.up.style('font-size', '15px');
+   scrollbar.up.style('border', '2px solid ' + coolors.gray);
+   scrollbar.up.mousePressed(() => {
+      scrollbarMove("UP");
+   });
+   scrollbar.down = createButton("▼");
+   scrollbar.down.position(
+      (w/2) + lobbyBack.width*w-mw-lobbyBack.strokeWeight/2,
+      (h*lobbyBack.hm) + lobbyBack.height*h-mw-lobbyBack.strokeWeight/2);
+   scrollbar.down.size(mw, mw);
+   scrollbar.down.style('background-color', coolors.white);
+   scrollbar.down.style('outline', 'none');
+   scrollbar.down.style('color', coolors.black);
+   scrollbar.down.style('font-size', '15px');
+   scrollbar.down.style('border', '2px solid ' + coolors.gray);
+   scrollbar.down.mousePressed(() => {
+      scrollbarMove("DOWN");
+   });
+   drawScrollbar();
+}
+
+function scrollbarMove(direction){
+   var diff = lobbies.length-lobbyBack.lines;
+   console.log(diff);
+   if(scrollbar.needScrollbar){
+      if(direction==="UP"){ //if up pressed
+         if(scrollbar.scrollVal>0){ //if anywhere to go up
+            scrollbar.scrollVal--;
+            scrollbar.down.show();
+            if(scrollbar.scrollVal===0){
+               console.log("can't go up");
+               scrollbar.up.hide();
+            }
+         }
+      }else if(direction==="DOWN"){
+         if(scrollbar.scrollVal<diff){ //if anywhere to go down
+            scrollbar.scrollVal++;
+            scrollbar.up.show();
+            if(scrollbar.scrollVal===diff){
+               console.log("can't go down");
+               scrollbar.down.hide();
+            }
+         }
+      }
+      for(var i = 0; i<buttons.length; i++){
+         buttons[i].html("Lobby name: " + lobbies[i+scrollbar.scrollVal]);
+      }
+   }
+}
+
+function drawScrollbar(){
+   if(lobbies.length>lobbyBack.lines){
+      scrollbar.needScrollbar = true;
+      scrollbar.up.show();
+      scrollbar.down.show();
+   }else{
+      scrollbar.needScrollbar = false;
+      scrollbar.up.hide();
+      scrollbar.down.hide();
+   }
+   // fill(coolors.white);
+   // noStroke();
+   // scrollbar.barBack = rect((w/2) + lobbyBack.width*w-mw-lobbyBack.strokeWeight/2, (h*lobbyBack.hm) - lobbyBack.height*h+mw,
+   // mw, lobbyBack.height*2*h-2*mw);
 }
 
 
@@ -177,6 +276,7 @@ function drawNewLobby(){
 
 function preload(){
    setupCoolors();
+   hero = loadFont('assets/hero.otf');
 }
 
 
