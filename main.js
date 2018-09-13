@@ -2,13 +2,13 @@ var cnv;
 
 var lobbyBack = {
    width : 0.3,
-   height : 0.2,
-   hm: 0.3,
+   height : 0.3,
+   hm: 0.35,
    bufferW: 0.1,
    bufferH: 0.02,
    lineBuffer: 0.003,
    strokeWeight: 6,
-   lines: 5
+   lines: 6
 };
 
 var lobbyDef = {
@@ -67,6 +67,8 @@ var scrollbar = {
 
 var slider;
 var hero;
+var rediviva;
+var morris;
 
 function drawLobbyBack(){
    strokeWeight(lobbyBack.strokeWeight);
@@ -198,6 +200,7 @@ function setupScrollbar(){
    scrollbar.down.mousePressed(() => {
       scrollbarMove("DOWN");
    });
+   scrollbar.up.hide();
    drawScrollbar();
 }
 
@@ -268,7 +271,8 @@ function drawNewLobby(){
    button.style('background-color', coolors.rasp);
    button.style('outline', 'none');
    button.style('color', coolors.white);
-   button.style('font-size', '20px');
+   button.style('font-size', '40px');
+   button.style('font-family', 'morrisroman-black');
    button.style('border', '2px solid ' + coolors.black);
    button.mousePressed(newLobby.fcn);
    // redrawAll();
@@ -276,7 +280,9 @@ function drawNewLobby(){
 
 function preload(){
    setupCoolors();
-   hero = loadFont('assets/hero.otf');
+   hero = loadFont('assets/hero light.otf');
+   // rediviva = loadFont('assets/rediviva.ttf');
+   morris = loadFont('assets/MorrisRoman-Black.ttf');
 }
 
 

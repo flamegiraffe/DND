@@ -15,7 +15,9 @@ var buttons = [];
 var buttonProps = [];
 var characters = [];
 var walls = [];
-var characterImages = [];
+var characterImgDict = [];
+var selectedChar;
+var clickedOnButton = false;
 
 var showMenuButton ={
    showMenu: false,
@@ -26,6 +28,7 @@ var showMenuButton ={
    text: "More",
    show: true,
    fnc: function(butt) {
+      clickedOnButton = true;
       this.showMenu = !this.showMenu;
       if(this.showMenu){
          butt.style('background-color', coolors.blue);
@@ -39,6 +42,7 @@ var showMenuButton ={
       buttons.forEach(b => {
          this.showMenu ? b.show() : (b!==butt ? b.hide() : b.show());
       });
+      redrawAll();
    }
 };
 var editButton ={
@@ -49,16 +53,61 @@ var editButton ={
    height: 30,
    text: "Edit",
    show: false,
-   firstClick: true,
+   // firstClick: true,
    fnc: function(butt) {
+      clickedOnButton = true;
       this.editWalls = !this.editWalls;
       if(this.editWalls){
          butt.style('background-color', coolors.blue)
-         this.firstClick = true;
+         // this.firstClick = true;
       }else{
          butt.style('background-color', coolors.gray);
          building.wallStarted = false;
       }
+   }
+};
+var addCharButton ={
+   waitingOnClick: false,
+   posX: 10,
+   posY: 200,
+   width: 50,
+   height: 30,
+   text: "Add",
+   show: false,
+   fnc: function(butt) {
+      clickedOnButton = true;
+      var url = prompt("Please enter image url", "");
+      if(url!=null){
+         if(findInDict(url)===-1){
+            var img = loadImage(url, (img) => {
+               console.log("finished loading image");
+               characterImgDict.push({
+                  key: url,
+                  value: img
+               });
+               characters.push({
+                  posX : 0,
+                  posY: 0,
+                  showStats: true,
+                  url,
+               });
+               updateServerChars();
+               redrawAll();
+            });
+         }else{
+            var img = characterImgDict[findInDict(url)].value;
+            characters.push({
+               posX : 0,
+               posY: 0,
+               showStats: true,
+               url,
+            });
+            updateServerChars();
+            redrawAll();
+
+         }
+      }
+
    }
 };
 var building ={
@@ -70,18 +119,56 @@ var building ={
 
 
 function preload() {
-   barbImg = loadImage( 'assets/barbarian.png' );
+   setupSocket();
+   getChars();
    setupCoolors();
 }
 
+function findInDict(url){
+   for(var i = 0; i<characterImgDict.length; i++){
+      if(characterImgDict[i].key===url){
+         return i;
+      }
+   }
+   return -1;
+}
+
+function loadCharImages(){
+   for(var i = 0; i<characters.length; i++){
+      if(findInDict(characters[i].url)===-1){
+         var img = loadImage(characters[i].url, (img, i) => {
+            console.log("finished loading image");
+            redrawAll();
+            // characterImgDict.push({
+            //    key:characters[i].url,
+            //    value: img
+            // });
+         });
+         characterImgDict.push({
+            key:characters[i].url,
+            value: img
+         });
+      }
+   }
+}
+
+function getChars(){
+   var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
+   var toSend = {
+      request: "getChars",
+      hexC: myHexC
+   };
+   socketSend(toSend);
+}
+
 function setup() {
-   setupChars();
    cnv = createCanvas( windowWidth, windowHeight );
    setupButtons();
-   setupSocket();
    getMap();
    redrawAll();
 }
+
+
 function getMap(){
    var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
    var toSend = {
@@ -90,8 +177,9 @@ function getMap(){
    };
    socketSend(toSend);
 }
+
 function onServerMessage(msg){
-   console.log("on server message");
+   console.log("on server message", msg.request);
    if(msg.status==="success"){
       if(msg.request==="getMap"){
          walls = msg.map;
@@ -101,6 +189,12 @@ function onServerMessage(msg){
          redrawAll();
       }else if(msg.request === "updateChars"){
          characters = msg.characters;
+         console.log("from server chars: ", msg.characters);
+         loadCharImages();
+         redrawAll();
+      }else if(msg.request === "getChars"){
+         characters = msg.characters;
+         loadCharImages();
          redrawAll();
       }
    }
@@ -128,6 +222,7 @@ function updateServerChars(){
 function setupButtons(){
    buttonProps.push(showMenuButton);
    buttonProps.push(editButton);
+   buttonProps.push(addCharButton);
    buttonProps.forEach(bp => {
       var button = createButton(bp.text);
       button.position(bp.posX, bp.posY);
@@ -142,14 +237,16 @@ function setupButtons(){
    });
 }
 
-function setupChars() {
-   characterImages.push(barbImg);
-   characters.push({ //barb
-      posX : 10,
-      posY: 5,
-      image: 0
-   });
-}
+// function setupChars() {
+//    characters.push({ //barb
+//       posX : 10,
+//       posY: 5,
+//       url: 'https://i.imgur.com/Iz0Lmqt.png',
+//       image: 0
+//    });
+//    updateServerChars();
+//    redrawAll();
+// }
 
 function moveGrid() {
    redrawAll();
@@ -172,14 +269,20 @@ function drawGrid() {
 }
 
 function drawChars() {
-   characters.forEach(character => {
-      image(characterImages[character.image],
+   if(characters.length>0){
+      characters.forEach(character => {
+         var i = findInDict(character.url);
+         if(i!==-1){
+            image(characterImgDict[i].value,
             (character.posX + xOff) * gridSpacing,
             (character.posY + yOff) * gridSpacing,
             gridSpacing,
             gridSpacing);
-   });
+         }
+      });
+   }
 }
+
 
 function drawHiLi() {
    if( hiLi.isHigh ) {
@@ -199,7 +302,7 @@ function drawMenu(){
    stroke(coolors.black);
    fill(coolors.rasp);
    if(showMenuButton.showMenu){
-      rect(0,90,75,100);
+      rect(0,90,75,150);
    }else{
       rect(0,90,75,50);
 
@@ -229,7 +332,10 @@ function redrawAll() {
 }
 
 function editWallsClick(gx, gy){
-   if(!editButton.firstClick){
+   var gx = Math.round(mouseX / gridSpacing) - xOff;
+   var gy = Math.round(mouseY / gridSpacing) - yOff;
+
+   if(!clickedOnButton){
       if(building.wallStarted){
          building.wallStarted = false;
          var remove = false;
@@ -256,8 +362,9 @@ function editWallsClick(gx, gy){
          building.firstCornerY = gy;
          building.wallStarted = true;
       }
-   }else{
-      editButton.firstClick = false;
+   // }else{
+   //    editButton.firstClick = false;
+   // }
    }
 }
 
@@ -270,28 +377,36 @@ function playClick(gx, gy){
    if( clickedOnChar ) {
       hiLi.posX = gx;
       hiLi.posY = gy;
-      hiLi.isHigh = true;
-   } else {
       characters.forEach(character => {
          if(hiLi.posX == character.posX && hiLi.posY == character.posY) {
-            hiLi.isHigh = false;
-            character.posX = gx;
-            character.posY = gy;
-            updateServerChars();
+            selectedChar = character;
          }
       });
+      hiLi.isHigh = true;
+   } else {
+      if(hiLi.isHigh){
+         selectedChar.posX = gx;
+         selectedChar.posY = gy;
+         updateServerChars();
+         hiLi.isHigh = false;
+      }
    }
 }
 
+
 function mousePressed() {
-   var gx = Math.floor(mouseX / gridSpacing) - xOff;
-   var gy = Math.floor(mouseY / gridSpacing) - yOff;
-   if(editButton.editWalls){
-      editWallsClick(gx, gy);
+   if(!clickedOnButton){
+      var gx = Math.floor(mouseX / gridSpacing) - xOff;
+      var gy = Math.floor(mouseY / gridSpacing) - yOff;
+      if(editButton.editWalls){
+         editWallsClick(gx, gy);
+      }else{
+         playClick(gx, gy);
+      }
+      redrawAll();
    }else{
-      playClick(gx, gy);
+      clickedOnButton = false;
    }
-   redrawAll();
 }
 
 function keyPressed() {

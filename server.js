@@ -41,12 +41,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname+'/main.html'));
   // res.send('Hello Universe!');
 });
-app.get('/play', (req, res) => {
-  // req is the request, res is the resolution (packet sent back)
-  // res can send a file with .sendFile, that can be an html
-  res.sendFile(path.resolve(__dirname+'/play.html'));
-  // res.send('Hello Universe!');
-});
+// app.get('/play', (req, res) => {
+//   // req is the request, res is the resolution (packet sent back)
+//   // res can send a file with .sendFile, that can be an html
+//   res.sendFile(path.resolve(__dirname+'/play.html'));
+//   // res.send('Hello Universe!');
+// });
 
 app.post('/checkpass', function(req, res) {
    // console.log('server received data');
@@ -143,6 +143,21 @@ io.on('connection', function(socket) {
          for(var i = 0; i<db.length; i++){
             if(db[i].hexCode === data.hexC){
                db[i].chars = data.characters;
+               var toSend = {
+                  status: "success",
+                  request: data.request,
+                  characters: db[i].chars
+               };
+               io.emit('message', toSend);
+            }
+         }
+      }else if(data.request === "getChars"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               if(db[i].chars===undefined){
+                  db[i].chars = [];
+                  console.log("no chars defined");
+               }
                var toSend = {
                   status: "success",
                   request: data.request,
