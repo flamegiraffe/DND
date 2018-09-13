@@ -66,7 +66,6 @@ var scrollbar = {
 };
 
 var slider;
-var hero;
 var rediviva;
 var morris;
 
@@ -280,7 +279,6 @@ function drawNewLobby(){
 
 function preload(){
    setupCoolors();
-   hero = loadFont('assets/hero light.otf');
    // rediviva = loadFont('assets/rediviva.ttf');
    morris = loadFont('assets/MorrisRoman-Black.ttf');
 }
