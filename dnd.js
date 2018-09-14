@@ -110,12 +110,64 @@ var addCharButton ={
 
    }
 };
+var downloadMap ={
+   waitingOnClick: false,
+   posX: 10,
+   posY: 250,
+   width: 50,
+   height: 30,
+   text: "Down",
+   show: false,
+   fnc: function(butt) {
+      clickedOnButton = true;
+      var name = prompt("Name the file:", "");
+      if(name!=null){
+         var toSave = {
+            x1s: [],
+            x2s: [],
+            y1s: [],
+            y2s: [],
+         };
+         for(var i = 0; i<walls.length; i++){
+            toSave.x1s.push(walls[i].x1);
+            toSave.y1s.push(walls[i].y1);
+            toSave.x2s.push(walls[i].x2);
+            toSave.y2s.push(walls[i].y2);
+         }
+         var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
+         saveAs(blob, name+'.txt');
+      }
+   }
+};
+var uploadMap ={
+   waitingOnClick: false,
+   posX: 10,
+   posY: 300,
+   width: 50,
+   height: 30,
+   text: "Up",
+   show: false,
+   fnc: function(butt) {
+      clickedOnButton = true;
+      // var file = document.getElementById('file-input').click();
+      // console.log(document.getElementById('file-input').files[0]);
+      // console.log(file);
+      // selectInput("Select a map:", "fileSelected");
+      // if (selection == null) {
+      //    println("Window was closed or the user hit cancel.");
+      // } else {
+      //    println("User selected " + selection.getAbsolutePath());
+      // }
+   }
+};
+
 var building ={
    wallStarted: false,
    firstCornerX: 0,
    firstCornerY: 0,
    wallWidth : 4
 };
+var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
 
 
 function preload() {
@@ -153,7 +205,7 @@ function loadCharImages(){
 }
 
 function getChars(){
-   var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
+   // var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
    var toSend = {
       request: "getChars",
       hexC: myHexC
@@ -170,7 +222,7 @@ function setup() {
 
 
 function getMap(){
-   var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
+   // var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
    var toSend = {
       request: "getMap",
       hexC: myHexC
@@ -200,7 +252,7 @@ function onServerMessage(msg){
    }
 }
 function updateServerWalls(){
-   var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
+   // var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
    var toSend = {
       request: "updateWalls",
       hexC: myHexC,
@@ -210,7 +262,7 @@ function updateServerWalls(){
 }
 
 function updateServerChars(){
-   var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
+   // var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
    var toSend = {
       request: "updateChars",
       hexC: myHexC,
@@ -223,6 +275,8 @@ function setupButtons(){
    buttonProps.push(showMenuButton);
    buttonProps.push(editButton);
    buttonProps.push(addCharButton);
+   buttonProps.push(downloadMap);
+   buttonProps.push(uploadMap);
    buttonProps.forEach(bp => {
       var button = createButton(bp.text);
       button.position(bp.posX, bp.posY);
@@ -235,6 +289,24 @@ function setupButtons(){
       (bp.show) ? button.show() : button.hide();
       buttons.push(button);
    });
+   buttons[buttons.length-1].drop(uploadFile);
+}
+
+function uploadFile(file){
+   if(file.type==='text'){
+      var rec = JSON.parse(file.data);
+      var newmap = [];
+      for(var i = 0; i<rec.x1s.length; i++){
+         newmap.push({
+            x1: rec.x1s[i],
+            y1: rec.y1s[i],
+            x2: rec.x2s[i],
+            y2: rec.y2s[i]
+         });
+      }
+      walls = newmap;
+      updateServerWalls();
+   }
 }
 
 // function setupChars() {
@@ -302,7 +374,7 @@ function drawMenu(){
    stroke(coolors.black);
    fill(coolors.rasp);
    if(showMenuButton.showMenu){
-      rect(0,90,75,150);
+      rect(0,90,75,buttons.length*50);
    }else{
       rect(0,90,75,50);
 
