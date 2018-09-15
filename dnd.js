@@ -26,6 +26,33 @@ var menuProps = {
    bufferW: 0.01,
    bufferH: 0.01
 };
+var rollTab = {
+   showTab: false,
+   widthP: 0.25,
+   heightP: 0.15,
+   textAct: "Roll",
+   textDeact: "Hide",
+   buttonWidthP: 0.05,
+   buttonHeightP: 0.07,
+   inpWidthP: 0.15,
+   inpHeightP: 0.05,
+   inpWidthC: 0.5,
+   inpHeightC: 0.25,
+   toggleRollTab: function() {
+      if(rollTab.showTab){
+         rollButton.html(rollTab.textAct);
+         rollInp.hide();
+      }else{
+         rollButton.html(rollTab.textDeact);
+         rollInp.show();
+      }
+      rollTab.showTab = !rollTab.showTab;
+      redrawAll();
+   }
+};
+
+var rollButton;
+var rollInp;
 var statsProps = {
    widthP: 0.25,
    heightP: 0.2,
@@ -167,6 +194,10 @@ var building ={
 };
 var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
 
+function test(){
+   console.log("successfully tested");
+}
+
 function preload() {
    setupSocket();
    getChars();
@@ -258,8 +289,58 @@ function getChars(){
 function setup() {
    cnv = createCanvas( windowWidth, windowHeight );
    setupButtons();
+   setupRollTab();
    getMap();
+   rollDice("1d20 + 2d4")
    redrawAll();
+}
+
+function setupRollTab(){
+   var w = windowWidth;
+   var h = windowHeight;
+
+   rollButton = createButton(rollTab.textAct);
+   rollButton.position(w*(1-rollTab.buttonWidthP), h*(1-rollTab.buttonHeightP));
+   rollButton.size(rollTab.buttonWidthP*w, rollTab.buttonHeightP*h);
+   rollButton.style('background-color', coolors.orange);
+   rollButton.style('outline', 'none');
+   rollButton.style('border', '2px solid ' + coolors.black);
+   rollButton.mousePressed(rollTab.toggleRollTab);
+
+   rollInp = createInput();
+   rollInp.position(w*(1-rollTab.widthP*(1-rollTab.inpWidthC)-rollTab.inpWidthP/2), h*(1-rollTab.heightP*(1-rollTab.inpHeightC)-rollTab.inpHeightP/2));
+   rollInp.size(rollTab.inpWidthP*w, rollTab.inpHeightP*h);
+   //TODO finish input
+   // rollInp.onSubmit(test);
+   rollInp.hide();
+}
+
+function rollDice(s){
+   var sum = 0;
+   s.split("+").forEach(st => {
+      sum += rollOneTypeDie(st);
+   });
+   //TODO notify others of roll
+   return sum;
+}
+
+function rollOneTypeDie(s){
+   var cleanS = "";
+   for(i = 0; i<s.length; i++){
+      if(s[i]!==" "){
+         cleanS += s[i];
+      }
+   }
+   return roll(parseInt(cleanS.substring(0, cleanS.lastIndexOf("d"))), parseInt(cleanS. substring(cleanS.lastIndexOf("d")+1, cleanS.length)));
+}
+
+function roll(a, s){
+   var res = 0;
+   for(i = 0; i<a; i++){
+      var rolled = int(random(s))+1;
+      res += rolled;
+   }
+   return res;
 }
 
 function getMap(){
@@ -337,7 +418,8 @@ function setupButtons(){
       buttons.push(button);
    });
    buttons[buttons.length-1].drop(uploadFile);
-   // buttons[2].drop(uploadFile);
+
+
 }
 
 function uploadFile(file){ //for uploading maps or characters
@@ -489,6 +571,18 @@ function drawStats(){
    }
 }
 
+function drawRoll(){
+   if(rollTab.showTab){
+      strokeWeight(3);
+      stroke(coolors.black);
+      fill(coolors.blue);
+      var w = windowWidth;
+      var h = windowHeight;
+      rect((1-rollTab.widthP)*w, (1-rollTab.heightP)*h, rollTab.widthP*w, rollTab.heightP*h);
+      strokeWeight(1);
+   }
+}
+
 function redrawAll() {
    clear();
    background( coolors.white );
@@ -497,6 +591,7 @@ function redrawAll() {
    drawHiLi();
    drawChars();
    drawStats();
+   drawRoll();
    drawMenu();
 }
 
