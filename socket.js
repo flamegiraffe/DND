@@ -23,9 +23,3 @@ function setupSocket(){
 function socketSend(data){
    ws.send(data);
 }
-// function socketSend(data, callback){
-//    ws.send(data);
-//    ws.on('message', msg => {
-//       callback(msg);
-//    });
-// }

@@ -18,6 +18,19 @@ var walls = [];
 var characterImgDict = [];
 var selectedChar;
 var clickedOnButton = false;
+var menuProps = {
+   STW: 2,
+   buttonWidthP: 0.05,
+   buttonHeightP: 0.05,
+   heightStartP: 0.0,
+   bufferW: 0.01,
+   bufferH: 0.01
+};
+var statsProps = {
+   widthP: 0.25,
+   heightP: 0.2,
+   lines: 3
+};
 
 var showMenuButton ={
    showMenu: false,
@@ -31,11 +44,11 @@ var showMenuButton ={
       clickedOnButton = true;
       this.showMenu = !this.showMenu;
       if(this.showMenu){
-         butt.style('background-color', coolors.blue);
+         butt.style('background-color', coolors.orange);
       }else{
          editButton.editWalls = false;
          buttons.forEach(b => {
-            b.style('background-color', coolors.gray);
+            b.style('background-color', coolors.white);
          });
       }
 
@@ -51,17 +64,17 @@ var editButton ={
    posY: 150,
    width: 50,
    height: 30,
-   text: "Edit",
+   text: "Edit Walls",
    show: false,
    // firstClick: true,
    fnc: function(butt) {
       clickedOnButton = true;
       this.editWalls = !this.editWalls;
       if(this.editWalls){
-         butt.style('background-color', coolors.blue)
+         butt.style('background-color', coolors.orange)
          // this.firstClick = true;
       }else{
-         butt.style('background-color', coolors.gray);
+         butt.style('background-color', coolors.white);
          building.wallStarted = false;
       }
    }
@@ -72,42 +85,24 @@ var addCharButton ={
    posY: 200,
    width: 50,
    height: 30,
-   text: "Add",
+   text: "Create A Character",
    show: false,
    fnc: function(butt) {
       clickedOnButton = true;
-      var url = prompt("Please enter image url", "");
-      if(url!=null){
-         if(findInDict(url)===-1){
-            var img = loadImage(url, (img) => {
-               console.log("finished loading image");
-               characterImgDict.push({
-                  key: url,
-                  value: img
-               });
-               characters.push({
-                  posX : 0,
-                  posY: 0,
-                  showStats: true,
-                  url,
-               });
-               updateServerChars();
-               redrawAll();
-            });
-         }else{
-            var img = characterImgDict[findInDict(url)].value;
-            characters.push({
-               posX : 0,
-               posY: 0,
-               showStats: true,
-               url,
-            });
-            updateServerChars();
-            redrawAll();
+      var name = prompt("Please enter character's name: ", "Robert Baratheon");
+      if(name!=null){
+         var url = prompt("Please enter image url", "");
+         if(url!=null){
+            var health = prompt("Please enter maximum health: ", "50");
+            if(health!=null){
+               var saveThrows = prompt("Please enter saving throws", "+1/+1/+1");
+               if(saveThrows!=null){
+                  createNewChar(name, url, health, saveThrows);
+               }
+            }
 
          }
       }
-
    }
 };
 var downloadMap ={
@@ -116,17 +111,19 @@ var downloadMap ={
    posY: 250,
    width: 50,
    height: 30,
-   text: "Down",
+   text: "Save Map",
    show: false,
    fnc: function(butt) {
       clickedOnButton = true;
       var name = prompt("Name the file:", "");
       if(name!=null){
          var toSave = {
+            dd: "map",
             x1s: [],
             x2s: [],
             y1s: [],
             y2s: [],
+            characters: []
          };
          for(var i = 0; i<walls.length; i++){
             toSave.x1s.push(walls[i].x1);
@@ -134,6 +131,7 @@ var downloadMap ={
             toSave.x2s.push(walls[i].x2);
             toSave.y2s.push(walls[i].y2);
          }
+         toSave.characters = characters;
          var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
          saveAs(blob, name+'.txt');
       }
@@ -145,7 +143,7 @@ var uploadMap ={
    posY: 300,
    width: 50,
    height: 30,
-   text: "Up",
+   text: "Drop To Upload",
    show: false,
    fnc: function(butt) {
       clickedOnButton = true;
@@ -169,11 +167,59 @@ var building ={
 };
 var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
 
-
 function preload() {
    setupSocket();
    getChars();
    setupCoolors();
+}
+
+function createNewChar(name, imgURL, maxH, saveThrows){
+   var fn = prompt("Please enter filename");
+   if(fn!=null){
+      var toSave = {
+         dd: "character",
+         showStats: true,
+         url: imgURL,
+         name,
+         maxHealth: maxH,
+         saveThrows
+      };
+      var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, fn+'.txt');
+   }
+   if(findInDict(imgURL)===-1){
+      var img = loadImage(imgURL, (img) => {
+         characterImgDict.push({
+            key: imgURL,
+            value: img
+         });
+         characters.push({
+            posX : 0,
+            posY: 0,
+            showStats: true,
+            url: imgURL,
+            name,
+            maxHealth: maxH,
+            saveThrows
+         });
+         updateServerChars();
+         redrawAll();
+      });
+   }else{
+      var img = characterImgDict[findInDict(imgURL)].value;
+      characters.push({
+         posX : 0,
+         posY: 0,
+         showStats: true,
+         url: imgURL,
+         name,
+         maxHealth: maxH,
+         saveThrows
+      });
+      updateServerChars();
+      redrawAll();
+
+   }
 }
 
 function findInDict(url){
@@ -191,10 +237,6 @@ function loadCharImages(){
          var img = loadImage(characters[i].url, (img, i) => {
             console.log("finished loading image");
             redrawAll();
-            // characterImgDict.push({
-            //    key:characters[i].url,
-            //    value: img
-            // });
          });
          characterImgDict.push({
             key:characters[i].url,
@@ -219,7 +261,6 @@ function setup() {
    getMap();
    redrawAll();
 }
-
 
 function getMap(){
    // var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
@@ -251,6 +292,7 @@ function onServerMessage(msg){
       }
    }
 }
+
 function updateServerWalls(){
    // var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
    var toSend = {
@@ -277,51 +319,79 @@ function setupButtons(){
    buttonProps.push(addCharButton);
    buttonProps.push(downloadMap);
    buttonProps.push(uploadMap);
+   var w = windowWidth;
+   var h = windowHeight;
    buttonProps.forEach(bp => {
       var button = createButton(bp.text);
-      button.position(bp.posX, bp.posY);
-      button.size(bp.width, bp.height);
+      // button.position(bp.posX, bp.posY);
+      // button.size(bp.width, bp.height);
+      button.position(menuProps.bufferW*w, menuProps.heightStartP*h+buttons.length*(menuProps.buttonHeightP+menuProps.bufferH)*h+menuProps.bufferH*h);
+      button.size(menuProps.buttonWidthP*w, menuProps.buttonHeightP*h);
+
       bp.myButton = button;
       button.style('background-color', coolors.white);
       button.style('outline', 'none');
-      button.style('border', '2px solid ' + coolors.orange);
+      button.style('border', '2px solid ' + coolors.black);
       button.mousePressed(function () {bp.fnc(button);});
       (bp.show) ? button.show() : button.hide();
       buttons.push(button);
    });
    buttons[buttons.length-1].drop(uploadFile);
+   // buttons[2].drop(uploadFile);
 }
 
-function uploadFile(file){
+function uploadFile(file){ //for uploading maps or characters
    if(file.type==='text'){
       var rec = JSON.parse(file.data);
-      var newmap = [];
-      for(var i = 0; i<rec.x1s.length; i++){
-         newmap.push({
-            x1: rec.x1s[i],
-            y1: rec.y1s[i],
-            x2: rec.x2s[i],
-            y2: rec.y2s[i]
-         });
+      if(rec.dd === "map"){
+         var newmap = [];
+         for(var i = 0; i<rec.x1s.length; i++){
+            newmap.push({
+               x1: rec.x1s[i],
+               y1: rec.y1s[i],
+               x2: rec.x2s[i],
+               y2: rec.y2s[i]
+            });
+         }
+         characters = rec.characters;
+         walls = newmap;
+         updateServerWalls();
+         updateServerChars();
+      }else if(rec.dd === "character"){
+         if(findInDict(rec.url)===-1){
+            var img = loadImage(rec.url, (img) => {
+               characterImgDict.push({
+                  key: rec.url,
+                  value: img
+               });
+               characters.push({
+                  posX : 0,
+                  posY: 0,
+                  showStats: rec.showStats,
+                  url: rec.url,
+                  name: rec.name,
+                  maxHealth: rec.maxHealth,
+                  saveThrows: rec.saveThrows
+               });
+               updateServerChars();
+               redrawAll();
+            });
+         }else{
+            var img = characterImgDict[findInDict(rec.url)].value;
+            characters.push({
+               posX : 0,
+               posY: 0,
+               showStats: rec.showStats,
+               url: rec.url,
+               name: rec.name,
+               maxHealth: rec.maxHealth,
+               saveThrows: rec.saveThrows
+            });
+            updateServerChars();
+            redrawAll();
+         }
       }
-      walls = newmap;
-      updateServerWalls();
    }
-}
-
-// function setupChars() {
-//    characters.push({ //barb
-//       posX : 10,
-//       posY: 5,
-//       url: 'https://i.imgur.com/Iz0Lmqt.png',
-//       image: 0
-//    });
-//    updateServerChars();
-//    redrawAll();
-// }
-
-function moveGrid() {
-   redrawAll();
 }
 
 function draw() {
@@ -355,7 +425,6 @@ function drawChars() {
    }
 }
 
-
 function drawHiLi() {
    if( hiLi.isHigh ) {
       stroke( coolors.blue );
@@ -370,14 +439,23 @@ function drawHiLi() {
 }
 
 function drawMenu(){
-   strokeWeight( 2 );
+   strokeWeight( menuProps.STW );
    stroke(coolors.black);
    fill(coolors.rasp);
+   var w = windowWidth;
+   var h = windowHeight;
    if(showMenuButton.showMenu){
-      rect(0,90,75,buttons.length*50);
+      rect(
+         0,
+         menuProps.heightStartP*h,
+         (menuProps.buttonWidthP+menuProps.bufferW*2)*w,
+         (buttons.length*menuProps.buttonHeightP+(buttons.length+1)*menuProps.bufferH)*h);
    }else{
-      rect(0,90,75,50);
-
+      rect(
+         0,
+         menuProps.heightStartP*h,
+         (menuProps.buttonWidthP+menuProps.bufferW*2)*w,
+         (menuProps.buttonHeightP+menuProps.bufferH*2)*h);
    }
    strokeWeight( 1 );
 
@@ -393,6 +471,24 @@ function drawWalls(){
    });
 }
 
+function drawStats(){
+   if(hiLi.isHigh){
+      if(selectedChar.showStats){
+         //TODO make text pretty
+         strokeWeight(2);
+         stroke(coolors.black);
+         fill(coolors.dblue);
+         var w = windowWidth;
+         var h = windowHeight;
+         rect(w-statsProps.widthP*w, 0, statsProps.widthP*w, statsProps.heightP*h);
+         text(selectedChar.name, w-statsProps.widthP*w, statsProps.heightP*h/statsProps.lines);
+         text(selectedChar.maxHealth, w-statsProps.widthP*w, 2*statsProps.heightP*h/statsProps.lines);
+         text(selectedChar.saveThrows, w-statsProps.widthP*w, 3*statsProps.heightP*h/statsProps.lines);
+         strokeWeight(1);
+      }
+   }
+}
+
 function redrawAll() {
    clear();
    background( coolors.white );
@@ -400,6 +496,7 @@ function redrawAll() {
    drawWalls();
    drawHiLi();
    drawChars();
+   drawStats();
    drawMenu();
 }
 
@@ -447,14 +544,18 @@ function playClick(gx, gy){
          clickedOnChar = true;
    });
    if( clickedOnChar ) {
-      hiLi.posX = gx;
-      hiLi.posY = gy;
-      characters.forEach(character => {
-         if(hiLi.posX == character.posX && hiLi.posY == character.posY) {
-            selectedChar = character;
-         }
-      });
-      hiLi.isHigh = true;
+      if(hiLi.isHigh && hiLi.posX === gx && hiLi.posY === gy){
+         hiLi.isHigh = false;
+      }else{
+         hiLi.posX = gx;
+         hiLi.posY = gy;
+         characters.forEach(character => {
+            if(hiLi.posX == character.posX && hiLi.posY == character.posY) {
+               selectedChar = character;
+            }
+         });
+         hiLi.isHigh = true;
+      }
    } else {
       if(hiLi.isHigh){
          selectedChar.posX = gx;
@@ -464,7 +565,6 @@ function playClick(gx, gy){
       }
    }
 }
-
 
 function mousePressed() {
    if(!clickedOnButton){

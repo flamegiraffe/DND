@@ -109,6 +109,9 @@ io.on('connection', function(socket) {
   // socket is the connection to the client
   // socket.emit sends connected event back to the client with specified msg
   socket.emit('connected', 'Connected to server!');
+  socket.on('connected', (data) => {
+     console.log(socket.client.conn.id);
+  });
   // how the server responds when the client sends a message
   socket.on('message', function(data) {
    console.log("socket received", data);
@@ -176,13 +179,63 @@ io.on('connection', function(socket) {
   });
   // what happens when a client disconnects, not sure what's the event emitted
   // usually diconnect, close, or exit
-  // socket.on('disconnect', _ => {
-    // logic
-  // });
+  socket.on('disconnect', (data) => {
+     console.log(socket.client.conn.id);
+     console.log("client disconnected");
+  });
 });
 
 function generateHex(lobby, pass){
-   return (lobby + pass); //TODO
+   var lobbyE, passE;
+   if(lobby.length%2 !== 0){
+      lobbyE = lobby + "d";
+   }else{
+      lobbyE = lobby;
+   }
+   if(pass.length%2 !== 0){
+      passE = pass + "d";
+   }else{
+      passE = pass;
+   }
+   var lobbySum = 0;
+   for(var i = 0; i<lobbyE.length; i=i+2){
+      var di = lobbyE.substring(i, i+2);
+      var value = di2Val(di);
+      lobbySum += value;
+   }
+   var passSum = 0;
+   for(var i = 0; i<passE.length; i=i+2){
+      var di = passE.substring(i, i+2);
+      var value = di2Val(di);
+      passSum += value;
+   }
+   var lobbySumBin = lobbySum.toString(2);
+   var passSumBin = passSum.toString(2);
+   return toHex(lobbySumBin+passSumBin);
+}
+
+function di2Val(di){
+   //TODO var numofasciicharacters;
+   return di.charCodeAt(0)*126 + di.charCodeAt(1);
+}
+
+function toHex(xord){
+   while(xord.length%4!==0){
+      xord += "0";
+   }
+   var res = "";
+   for(var i = 0; i<xord.length; i=i+4){
+      res += toHexDig(xord.substring(i, i+4));
+   }
+   return res;
+}
+
+function toHexDig(s){
+   return parseInt(s, 2).toString(16);
+}
+
+function xor(a, b){
+   return ((a==="0" && b==="1") || (a==="1" && b==="0")) ? "1" : "0";
 }
 
 function checkHexCode(lobby, pass){
