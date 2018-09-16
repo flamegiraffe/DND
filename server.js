@@ -109,9 +109,10 @@ io.on('connection', function(socket) {
   // socket is the connection to the client
   // socket.emit sends connected event back to the client with specified msg
   socket.emit('connected', 'Connected to server!');
-  socket.on('connected', (data) => {
-     console.log(socket.client.conn.id);
-  });
+  // socket.on('connected', (data) => {
+  console.log(socket.handshake.address);
+  // console.log(socket);
+  // });
   // how the server responds when the client sends a message
   socket.on('message', function(data) {
    console.log("socket received", data);
@@ -187,6 +188,7 @@ io.on('connection', function(socket) {
 
 function generateHex(lobby, pass){
    var lobbyE, passE;
+   var res = "";
    if(lobby.length%2 !== 0){
       lobbyE = lobby + "d";
    }else{
@@ -197,26 +199,24 @@ function generateHex(lobby, pass){
    }else{
       passE = pass;
    }
-   var lobbySum = 0;
    for(var i = 0; i<lobbyE.length; i=i+2){
       var di = lobbyE.substring(i, i+2);
       var value = di2Val(di);
-      lobbySum += value;
+      res += value.toString(36);
    }
-   var passSum = 0;
    for(var i = 0; i<passE.length; i=i+2){
       var di = passE.substring(i, i+2);
       var value = di2Val(di);
-      passSum += value;
+      res += value.toString(36);
    }
-   var lobbySumBin = lobbySum.toString(2);
-   var passSumBin = passSum.toString(2);
-   return toHex(lobbySumBin+passSumBin);
+   // var lobbySumBin = lobbySum.toString(2);
+   // var passSumBin = passSum.toString(2);
+   // return toHex(lobbySumBin+passSumBin);
+   return res;
 }
 
 function di2Val(di){
-   //TODO var numofasciicharacters;
-   return di.charCodeAt(0)*126 + di.charCodeAt(1);
+   return di.charCodeAt(0)*127 + di.charCodeAt(1);
 }
 
 function toHex(xord){
@@ -232,10 +232,6 @@ function toHex(xord){
 
 function toHexDig(s){
    return parseInt(s, 2).toString(16);
-}
-
-function xor(a, b){
-   return ((a==="0" && b==="1") || (a==="1" && b==="0")) ? "1" : "0";
 }
 
 function checkHexCode(lobby, pass){

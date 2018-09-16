@@ -232,6 +232,7 @@ function scrollbarMove(direction){
    }
 }
 
+
 function drawScrollbar(){
    if(lobbies.length>lobbyBack.lines){
       scrollbar.needScrollbar = true;

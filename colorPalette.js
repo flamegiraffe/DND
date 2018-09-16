@@ -7,4 +7,7 @@ function setupCoolors(){
    coolors.dblue = color(0, 72, 124);
    coolors.rasp = color(158,0,49);
    coolors.orange = color(250,169,22);
+   coolors.purp = color(102, 42, 175);
+   coolors.mar = color(51, 0, 54);
+
 }

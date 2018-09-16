@@ -33,11 +33,16 @@ var rollTab = {
    textAct: "Roll",
    textDeact: "Hide",
    buttonWidthP: 0.05,
+   textHeight: 0.4,
    buttonHeightP: 0.07,
    inpWidthP: 0.15,
    inpHeightP: 0.05,
    inpWidthC: 0.5,
    inpHeightC: 0.25,
+   textBufferL: 0.1,
+   textBufferD: 0.1,
+   offBufferW: 0.01,
+   offBufferH: 0.02,
    toggleRollTab: function() {
       if(rollTab.showTab){
          rollButton.html(rollTab.textAct);
@@ -51,11 +56,13 @@ var rollTab = {
    }
 };
 
+var rolledVal ="";
 var rollButton;
 var rollInp;
 var statsProps = {
    widthP: 0.25,
    heightP: 0.2,
+   lineHeight: 0.2,
    lines: 3
 };
 
@@ -193,15 +200,19 @@ var building ={
    wallWidth : 4
 };
 var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
-
-function test(){
-   console.log("successfully tested");
-}
+var username;
+var statsFont;
 
 function preload() {
+   loadFonts();
    setupSocket();
    getChars();
    setupCoolors();
+}
+
+function loadFonts(){
+   // statsFont = loadFont('assets/Hero Light.otf');
+   statsFont = loadFont('assets/Rediviva.ttf');
 }
 
 function createNewChar(name, imgURL, maxH, saveThrows){
@@ -291,8 +302,27 @@ function setup() {
    setupButtons();
    setupRollTab();
    getMap();
-   rollDice("1d20 + 2d4")
    redrawAll();
+   setupUsername();
+}
+
+function setupUsername(){
+   var val = getCookieValue("username");
+   if(val!=null){
+      console.log(val);
+   }else{
+      var un = prompt("Please enter your username: ", "");
+      if(un!=null){
+         // username = un;
+         document.cookie = `username=${un}`;
+         // console.log(getCookieValue("username"));
+      }
+   }
+}
+
+function getCookieValue(a) {
+    var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+    return b ? b.pop() : '';
 }
 
 function setupRollTab(){
@@ -300,19 +330,27 @@ function setupRollTab(){
    var h = windowHeight;
 
    rollButton = createButton(rollTab.textAct);
-   rollButton.position(w*(1-rollTab.buttonWidthP), h*(1-rollTab.buttonHeightP));
+   rollButton.position(w*(1-rollTab.buttonWidthP-rollTab.offBufferW), h*(1-rollTab.buttonHeightP-rollTab.offBufferH));
    rollButton.size(rollTab.buttonWidthP*w, rollTab.buttonHeightP*h);
-   rollButton.style('background-color', coolors.orange);
+   rollButton.style('background-color', coolors.white);
    rollButton.style('outline', 'none');
-   rollButton.style('border', '2px solid ' + coolors.black);
+   rollButton.style('border', '2px solid ' + coolors.mar);
    rollButton.mousePressed(rollTab.toggleRollTab);
 
-   rollInp = createInput();
-   rollInp.position(w*(1-rollTab.widthP*(1-rollTab.inpWidthC)-rollTab.inpWidthP/2), h*(1-rollTab.heightP*(1-rollTab.inpHeightC)-rollTab.inpHeightP/2));
+   rollInp = createInput('1d20');
+   rollInp.position(w*(1-rollTab.widthP*(1-rollTab.inpWidthC)-rollTab.inpWidthP/2-rollTab.offBufferW), h*(1-rollTab.heightP*(1-rollTab.inpHeightC)-rollTab.offBufferH-rollTab.inpHeightP/2));
    rollInp.size(rollTab.inpWidthP*w, rollTab.inpHeightP*h);
    //TODO finish input
    // rollInp.onSubmit(test);
    rollInp.hide();
+}
+
+function checkRollInput(){
+   if(rollTab.showTab){
+      document.activeElement.blur();
+      rolledVal = rollDice(rollInp.value());
+      redrawAll();
+   }
 }
 
 function rollDice(s){
@@ -563,6 +601,12 @@ function drawStats(){
          var w = windowWidth;
          var h = windowHeight;
          rect(w-statsProps.widthP*w, 0, statsProps.widthP*w, statsProps.heightP*h);
+         fill(coolors.white);
+         strokeWeight(1);
+         stroke(coolors.white);
+         textSize(h*statsProps.heightP*statsProps.lineHeight);
+         // textAlign(CENTER);
+         textFont(statsFont);
          text(selectedChar.name, w-statsProps.widthP*w, statsProps.heightP*h/statsProps.lines);
          text(selectedChar.maxHealth, w-statsProps.widthP*w, 2*statsProps.heightP*h/statsProps.lines);
          text(selectedChar.saveThrows, w-statsProps.widthP*w, 3*statsProps.heightP*h/statsProps.lines);
@@ -574,11 +618,23 @@ function drawStats(){
 function drawRoll(){
    if(rollTab.showTab){
       strokeWeight(3);
-      stroke(coolors.black);
-      fill(coolors.blue);
+      stroke(coolors.purp);
+      fill(coolors.mar);
       var w = windowWidth;
       var h = windowHeight;
-      rect((1-rollTab.widthP)*w, (1-rollTab.heightP)*h, rollTab.widthP*w, rollTab.heightP*h);
+      rect((1-rollTab.widthP-rollTab.offBufferW)*w, (1-rollTab.heightP-rollTab.offBufferH)*h, (rollTab.widthP+rollTab.offBufferW)*w, (rollTab.heightP+rollTab.offBufferH)*h);
+      strokeWeight(1);
+      textSize(rollTab.heightP*windowHeight*rollTab.textHeight);
+      fill(coolors.white);
+      textFont(statsFont);
+      text("Rolled: " + rolledVal, (1-(1-rollTab.textBufferL)*rollTab.widthP-rollTab.offBufferW)*windowWidth, (1-rollTab.heightP*rollTab.textBufferD-rollTab.offBufferH)*windowHeight);
+   }else{
+      strokeWeight(3);
+      stroke(coolors.purp);
+      fill(coolors.mar);
+      var w = windowWidth;
+      var h = windowHeight;
+      rect((1-2*rollTab.offBufferW-rollTab.buttonWidthP)*w, (1-2*rollTab.offBufferH-rollTab.buttonHeightP)*h, (2*rollTab.offBufferW+rollTab.buttonWidthP)*w, (2*rollTab.offBufferH+rollTab.buttonHeightP)*h);
       strokeWeight(1);
    }
 }
@@ -679,10 +735,14 @@ function mousePressed() {
 function keyPressed() {
    switch( keyCode ) {
       case 187: // +
-         gridSpacing += zoomSpeed;
+         if(!rollTab.showTab){
+            gridSpacing += zoomSpeed;
+         }
          break;
       case 189: // -
-         gridSpacing > zoomSpeed ? gridSpacing -= zoomSpeed : null;
+         if(!rollTab.showTab){
+            gridSpacing > zoomSpeed ? gridSpacing -= zoomSpeed : null;
+         }
          break;
       case 37: // left
          xOff++;
@@ -696,8 +756,20 @@ function keyPressed() {
       case 40: // down
          yOff--;
          break;
+      case ENTER:
+         checkRollInput();
+         break;
       default:
          break;
+   }
+   redrawAll();
+}
+
+function mouseWheel(event) {
+   if(event.delta>0){
+      gridSpacing += zoomSpeed;
+   }else{
+      gridSpacing > zoomSpeed ? gridSpacing -= zoomSpeed : null;
    }
    redrawAll();
 }
