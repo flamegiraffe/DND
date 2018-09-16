@@ -170,6 +170,18 @@ io.on('connection', function(socket) {
                io.emit('message', toSend);
             }
          }
+      }else if(data.request === "roll"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               var toSend = {
+                  status: "success",
+                  request: data.request,
+                  rolls: data.rolls,
+                  user: data.user,
+               };
+               io.emit('message', toSend);
+            }
+         }
       }
    }else{
       console.log("data.request undefined");

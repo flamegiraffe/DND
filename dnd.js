@@ -18,6 +18,13 @@ var walls = [];
 var characterImgDict = [];
 var selectedChar;
 var clickedOnButton = false;
+
+var building ={
+   wallStarted: false,
+   firstCornerX: 0,
+   firstCornerY: 0,
+   wallWidth : 4
+};
 var menuProps = {
    STW: 2,
    buttonWidthP: 0.05,
@@ -25,6 +32,14 @@ var menuProps = {
    heightStartP: 0.0,
    bufferW: 0.01,
    bufferH: 0.01
+};
+var statsProps = {
+   widthP: 0.25,
+   heightP: 0.2,
+   lineHeight: 0.2,
+   bufferW: 0.1,
+   bufferH: 0.1,
+   lines: 3
 };
 var rollTab = {
    showTab: false,
@@ -56,18 +71,32 @@ var rollTab = {
       redrawAll();
    }
 };
+var mlogProps = {
+   showLog:  false,
+   text: "Log",
+   logFont: statsFont,
+   buttonWidthP: 0.03,
+   buttonHeightP: 0.05,
+   buttonBufferW: 0.01,
+   buttonBufferH: 0.02,
+   widthP: 0.4,
+   heightP: 0.15,
+   textBufferH: 0.1,
+   textBufferW: 0.05,
+   lines: 4,
+   toggleLog: function() {
+      clickedOnButton = true;
+      mlogProps.showLog = !mlogProps.showLog;
+      redrawAll();
+   }
+};
 
 var rolledVal ="";
 var rollButton;
 var rollInp;
-var statsProps = {
-   widthP: 0.25,
-   heightP: 0.2,
-   lineHeight: 0.2,
-   bufferW: 0.1,
-   bufferH: 0.1,
-   lines: 3
-};
+
+var logEntries = [];
+var logButton;
 
 var showMenuButton ={
    showMenu: false,
@@ -196,14 +225,9 @@ var uploadMap ={
    }
 };
 
-var building ={
-   wallStarted: false,
-   firstCornerX: 0,
-   firstCornerY: 0,
-   wallWidth : 4
-};
 var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
 var username;
+var hero;
 var statsFont;
 
 function preload() {
@@ -216,6 +240,8 @@ function preload() {
 function loadFonts(){
    // statsFont = loadFont('assets/Hero Light.otf');
    statsFont = loadFont('assets/Rediviva.ttf');
+   hero= loadFont('assets/Hero Light.otf');
+   mlogProps.logFont = hero;
 }
 
 function createNewChar(name, imgURL, maxH, saveThrows){
@@ -304,19 +330,38 @@ function setup() {
    cnv = createCanvas( windowWidth, windowHeight );
    setupButtons();
    setupRollTab();
+   setupLog();
    getMap();
    redrawAll();
    setupUsername();
+}
+
+function setupLog(){
+   var w = windowWidth;
+   var h = windowHeight;
+
+   logButton = createButton(mlogProps.text);
+   logButton.position(w*mlogProps.buttonBufferW, h*(1-mlogProps.buttonBufferH-mlogProps.buttonHeightP));
+   logButton.size(mlogProps.buttonWidthP*w, mlogProps.buttonHeightP*h);
+   logButton.style('background-color', coolors.white);
+   logButton.style('outline', 'none');
+   logButton.style('border', '2px solid ' + coolors.dblue);
+   logButton.mousePressed(mlogProps.toggleLog);
+
+   for(var i = 0; i<mlogProps.lines; i++){
+      logEntries.push("");
+   }
 }
 
 function setupUsername(){
    var val = getCookieValue("username");
    if(val!=""){
       console.log(val);
+      username = val;
    }else{
       var un = prompt("Please enter your username: ", "");
       if(un!=null){
-         // username = un;
+         username = un;
          document.cookie = `username=${un}`;
          // console.log(getCookieValue("username"));
       }
@@ -358,12 +403,29 @@ function checkRollInput(){
 }
 
 function rollDice(s){
-   var sum = 0;
+   var res = {
+      sum: 0,
+      rolls: []
+   };
    s.split("+").forEach(st => {
-      sum += rollOneTypeDie(st);
+      var rolled = rollOneTypeDie(st);
+      res.sum += rolled.sum;
+      rolled.rolls.forEach(r => {
+         res.rolls.push(r);
+      });
    });
-   //TODO notify others of roll
-   return sum;
+   sendRoll(res);
+   return res.sum;
+}
+
+function sendRoll(res){
+   var toSend = {
+      request: "roll",
+      hexC: myHexC,
+      user: username,
+      rolls: res.rolls
+   };
+   socketSend(toSend);
 }
 
 function rollOneTypeDie(s){
@@ -377,10 +439,15 @@ function rollOneTypeDie(s){
 }
 
 function roll(a, s){
-   var res = 0;
+   // var res = 0;
+   var res = {
+      sum: 0,
+      rolls: []
+   };
    for(i = 0; i<a; i++){
       var rolled = int(random(s))+1;
-      res += rolled;
+      res.sum += rolled;
+      res.rolls.push(rolled);
    }
    return res;
 }
@@ -412,8 +479,22 @@ function onServerMessage(msg){
          characters = msg.characters;
          loadCharImages();
          redrawAll();
+      }else if(msg.request === "roll"){
+         myLog(msg);
       }
    }
+}
+
+function myLog(msg){
+   for(var i = 0; i<mlogProps.lines-1; i++){
+      logEntries[i] = logEntries[i+1];
+   }
+   var newEntry = "";
+   if(msg.request === "roll"){
+      newEntry = msg.user + " rolled " + msg.rolls;
+   }
+   logEntries[mlogProps.lines-1] = newEntry;
+   redrawAll();
 }
 
 function updateServerWalls(){
@@ -651,6 +732,35 @@ function drawRoll(){
    }
 }
 
+function drawLog(){
+   var w = windowWidth;
+   var h = windowHeight;
+   if(mlogProps.showLog){
+      strokeWeight(2);
+      stroke(coolors.mar);
+      fill(coolors.dblue);
+      rect(0, (1-mlogProps.buttonBufferH-mlogProps.heightP)*h, w*(mlogProps.buttonBufferW + mlogProps.widthP), h*(mlogProps.buttonBufferH + mlogProps.heightP));
+      strokeWeight(1);
+
+      textFont(mlogProps.logFont);
+      // textSize(20);
+      textSize(((mlogProps.heightP*(1-mlogProps.textBufferH*2))*h)/mlogProps.lines);
+      fill(coolors.white);
+      noStroke();
+      for(var i = 0; i<mlogProps.lines; i++){
+         text(logEntries[i],
+              w*(mlogProps.buttonBufferW+mlogProps.buttonWidthP+mlogProps.widthP*mlogProps.textBufferW),
+              h*(1-(mlogProps.lines-i)*(1-2*mlogProps.textBufferH)*mlogProps.heightP/mlogProps.lines));
+      }
+   }else{
+      strokeWeight(2);
+      stroke(coolors.mar);
+      fill(coolors.dblue);
+      rect(0, (1-2*mlogProps.buttonBufferH-mlogProps.buttonHeightP)*h, w*(2*mlogProps.buttonBufferW + mlogProps.buttonWidthP), h*(2*mlogProps.buttonBufferH + mlogProps.buttonHeightP));
+      strokeWeight(1);
+   }
+}
+
 function redrawAll() {
    clear();
    background( coolors.white );
@@ -660,6 +770,7 @@ function redrawAll() {
    drawChars();
    drawStats();
    drawRoll();
+   drawLog();
    drawMenu();
 }
 
