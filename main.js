@@ -232,7 +232,6 @@ function scrollbarMove(direction){
    }
 }
 
-
 function drawScrollbar(){
    if(lobbies.length>lobbyBack.lines){
       scrollbar.needScrollbar = true;
@@ -248,7 +247,6 @@ function drawScrollbar(){
    // scrollbar.barBack = rect((w/2) + lobbyBack.width*w-mw-lobbyBack.strokeWeight/2, (h*lobbyBack.hm) - lobbyBack.height*h+mw,
    // mw, lobbyBack.height*2*h-2*mw);
 }
-
 
 function lobbyButton(lobbyName){
    console.log(lobbyName);
@@ -284,7 +282,6 @@ function preload(){
    morris = loadFont('assets/MorrisRoman-Black.ttf');
 }
 
-
 function setup(){
    cnv = createCanvas(windowWidth, windowHeight);
    background(coolors.white);
@@ -294,6 +291,7 @@ function setup(){
    setupRefresh();
    // redrawAll();
 }
+
 function redrawAll(){
    // clear();
    // background(coolors.white);

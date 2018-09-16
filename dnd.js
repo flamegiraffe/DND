@@ -311,7 +311,7 @@ function setup() {
 
 function setupUsername(){
    var val = getCookieValue("username");
-   if(val!=null){
+   if(val!=""){
       console.log(val);
    }else{
       var un = prompt("Please enter your username: ", "");
