@@ -44,6 +44,7 @@ var rollTab = {
    offBufferW: 0.01,
    offBufferH: 0.02,
    toggleRollTab: function() {
+      clickedOnButton = true;
       if(rollTab.showTab){
          rollButton.html(rollTab.textAct);
          rollInp.hide();
@@ -63,6 +64,8 @@ var statsProps = {
    widthP: 0.25,
    heightP: 0.2,
    lineHeight: 0.2,
+   bufferW: 0.1,
+   bufferH: 0.1,
    lines: 3
 };
 
@@ -340,8 +343,9 @@ function setupRollTab(){
    rollInp = createInput('1d20');
    rollInp.position(w*(1-rollTab.widthP*(1-rollTab.inpWidthC)-rollTab.inpWidthP/2-rollTab.offBufferW), h*(1-rollTab.heightP*(1-rollTab.inpHeightC)-rollTab.offBufferH-rollTab.inpHeightP/2));
    rollInp.size(rollTab.inpWidthP*w, rollTab.inpHeightP*h);
-   //TODO finish input
-   // rollInp.onSubmit(test);
+   rollInp.mousePressed(() => {
+      clickedOnButton = true;
+   });
    rollInp.hide();
 }
 
@@ -594,22 +598,29 @@ function drawWalls(){
 function drawStats(){
    if(hiLi.isHigh){
       if(selectedChar.showStats){
-         //TODO make text pretty
          strokeWeight(2);
-         stroke(coolors.black);
-         fill(coolors.dblue);
+         stroke(coolors.mar);
+         fill(coolors.purp);
          var w = windowWidth;
          var h = windowHeight;
          rect(w-statsProps.widthP*w, 0, statsProps.widthP*w, statsProps.heightP*h);
          fill(coolors.white);
-         strokeWeight(1);
-         stroke(coolors.white);
+         noStroke();
          textSize(h*statsProps.heightP*statsProps.lineHeight);
          // textAlign(CENTER);
          textFont(statsFont);
-         text(selectedChar.name, w-statsProps.widthP*w, statsProps.heightP*h/statsProps.lines);
-         text(selectedChar.maxHealth, w-statsProps.widthP*w, 2*statsProps.heightP*h/statsProps.lines);
-         text(selectedChar.saveThrows, w-statsProps.widthP*w, 3*statsProps.heightP*h/statsProps.lines);
+         textAlign(LEFT);
+         text("Name: ", w*(1-(1-statsProps.bufferW)*statsProps.widthP), (statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+         textAlign(RIGHT);
+         text(selectedChar.name, w*(1-statsProps.bufferW*statsProps.widthP), (statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+         textAlign(LEFT);
+         text("Max health: ", w*(1-(1-statsProps.bufferW)*statsProps.widthP), 2*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+         textAlign(RIGHT);
+         text(selectedChar.maxHealth, w*(1-statsProps.bufferW*statsProps.widthP), 2*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+         textAlign(LEFT);
+         text("Saves: ", w*(1-(1-statsProps.bufferW)*statsProps.widthP), 3*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+         textAlign(RIGHT);
+         text(selectedChar.saveThrows, w*(1-statsProps.bufferW*statsProps.widthP), 3*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
          strokeWeight(1);
       }
    }
@@ -627,6 +638,7 @@ function drawRoll(){
       textSize(rollTab.heightP*windowHeight*rollTab.textHeight);
       fill(coolors.white);
       textFont(statsFont);
+      textAlign(LEFT);
       text("Rolled: " + rolledVal, (1-(1-rollTab.textBufferL)*rollTab.widthP-rollTab.offBufferW)*windowWidth, (1-rollTab.heightP*rollTab.textBufferD-rollTab.offBufferH)*windowHeight);
    }else{
       strokeWeight(3);
