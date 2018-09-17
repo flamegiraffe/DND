@@ -151,7 +151,7 @@ var addCharButton ={
    posY: 200,
    width: 50,
    height: 30,
-   text: "Create A Character",
+   text: "Create Character",
    show: false,
    fnc: function(butt) {
       clickedOnButton = true;
@@ -327,7 +327,7 @@ function getChars(){
 }
 
 function setup() {
-   cnv = createCanvas( windowWidth, windowHeight );
+   cnv = createCanvas( window.innerWidth, window.innerHeight );
    setupButtons();
    setupRollTab();
    setupLog();
@@ -347,8 +347,8 @@ function notifyJoin(){
 }
 
 function setupLog(){
-   var w = windowWidth;
-   var h = windowHeight;
+   var w = window.innerWidth;
+   var h = window.innerHeight;
 
    logButton = createButton(mlogProps.text);
    logButton.position(w*mlogProps.buttonBufferW, h*(1-mlogProps.buttonBufferH-mlogProps.buttonHeightP));
@@ -384,8 +384,8 @@ function getCookieValue(a) {
 }
 
 function setupRollTab(){
-   var w = windowWidth;
-   var h = windowHeight;
+   var w = window.innerWidth;
+   var h = window.innerHeight;
 
    rollButton = createButton(rollTab.textAct);
    rollButton.position(w*(1-rollTab.buttonWidthP-rollTab.offBufferW), h*(1-rollTab.buttonHeightP-rollTab.offBufferH));
@@ -537,8 +537,8 @@ function setupButtons(){
    buttonProps.push(addCharButton);
    buttonProps.push(downloadMap);
    buttonProps.push(uploadMap);
-   var w = windowWidth;
-   var h = windowHeight;
+   var w = window.innerWidth;
+   var h = window.innerHeight;
    buttonProps.forEach(bp => {
       var button = createButton(bp.text);
       // button.position(bp.posX, bp.posY);
@@ -614,18 +614,18 @@ function uploadFile(file){ //for uploading maps or characters
 }
 
 function draw() {
-   var x = (windowWidth - width) / 2;
-   var y = (windowHeight - height) / 2;
+   var x = (window.innerWidth - width) / 2;
+   var y = (window.innerHeight - height) / 2;
    cnv.position(x, y);
 }
 
 function drawGrid() {
    stroke( coolors.gray );
-   for(var i = 0; i < (windowWidth / gridSpacing); i++) {
-      line(i * gridSpacing, 0, i * gridSpacing, windowHeight);
+   for(var i = 0; i < (window.innerWidth / gridSpacing); i++) {
+      line(i * gridSpacing, 0, i * gridSpacing, window.innerHeight);
    }
-   for(var i = 0; i < (windowHeight / gridSpacing); i++) {
-      line(0, i * gridSpacing, windowWidth, i * gridSpacing);
+   for(var i = 0; i < (window.innerHeight / gridSpacing); i++) {
+      line(0, i * gridSpacing, window.innerWidth, i * gridSpacing);
    }
 }
 
@@ -661,8 +661,8 @@ function drawMenu(){
    strokeWeight( menuProps.STW );
    stroke(coolors.black);
    fill(coolors.rasp);
-   var w = windowWidth;
-   var h = windowHeight;
+   var w = window.innerWidth;
+   var h = window.innerHeight;
    if(showMenuButton.showMenu){
       rect(
          0,
@@ -696,8 +696,8 @@ function drawStats(){
          strokeWeight(2);
          stroke(coolors.mar);
          fill(coolors.purp);
-         var w = windowWidth;
-         var h = windowHeight;
+         var w = window.innerWidth;
+         var h = window.innerHeight;
          rect(w-statsProps.widthP*w, 0, statsProps.widthP*w, statsProps.heightP*h);
          fill(coolors.white);
          noStroke();
@@ -726,29 +726,29 @@ function drawRoll(){
       strokeWeight(3);
       stroke(coolors.purp);
       fill(coolors.mar);
-      var w = windowWidth;
-      var h = windowHeight;
+      var w = window.innerWidth;
+      var h = window.innerHeight;
       rect((1-rollTab.widthP-rollTab.offBufferW)*w, (1-rollTab.heightP-rollTab.offBufferH)*h, (rollTab.widthP+rollTab.offBufferW)*w, (rollTab.heightP+rollTab.offBufferH)*h);
       strokeWeight(1);
-      textSize(rollTab.heightP*windowHeight*rollTab.textHeight);
+      textSize(rollTab.heightP*window.innerHeight*rollTab.textHeight);
       fill(coolors.white);
       textFont(statsFont);
       textAlign(LEFT);
-      text("Rolled: " + rolledVal, (1-(1-rollTab.textBufferL)*rollTab.widthP-rollTab.offBufferW)*windowWidth, (1-rollTab.heightP*rollTab.textBufferD-rollTab.offBufferH)*windowHeight);
+      text("Rolled: " + rolledVal, (1-(1-rollTab.textBufferL)*rollTab.widthP-rollTab.offBufferW)*window.innerWidth, (1-rollTab.heightP*rollTab.textBufferD-rollTab.offBufferH)*window.innerHeight);
    }else{
       strokeWeight(3);
       stroke(coolors.purp);
       fill(coolors.mar);
-      var w = windowWidth;
-      var h = windowHeight;
+      var w = window.innerWidth;
+      var h = window.innerHeight;
       rect((1-2*rollTab.offBufferW-rollTab.buttonWidthP)*w, (1-2*rollTab.offBufferH-rollTab.buttonHeightP)*h, (2*rollTab.offBufferW+rollTab.buttonWidthP)*w, (2*rollTab.offBufferH+rollTab.buttonHeightP)*h);
       strokeWeight(1);
    }
 }
 
 function drawLog(){
-   var w = windowWidth;
-   var h = windowHeight;
+   var w = window.innerWidth;
+   var h = window.innerHeight;
    if(mlogProps.showLog){
       strokeWeight(2);
       stroke(coolors.mar);

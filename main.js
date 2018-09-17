@@ -74,8 +74,8 @@ function drawLobbyBack(){
    strokeWeight(lobbyBack.strokeWeight);
    stroke(coolors.black);
    fill(coolors.rasp);
-   var w = windowWidth;
-   var h = windowHeight;
+   var w = window.innerWidth;
+   var h = window.innerHeight;
    rect(((w/2) - lobbyBack.width*w), ((h*lobbyBack.hm) - lobbyBack.height*h), lobbyBack.width*w*2, lobbyBack.height*h*2);
    strokeWeight(1);
 }
@@ -102,8 +102,8 @@ function refresh(){
 
 function setupRefresh(){
    refreshButton = createButton("↻");
-   var w = windowWidth;
-   var h = windowHeight;
+   var w = window.innerWidth;
+   var h = window.innerHeight;
    var mw = scrollbar.width*lobbyBack.bufferW*w;
    refreshButton.position((w/2) - lobbyBack.width*w+lobbyBack.strokeWeight/2, h*(lobbyBack.hm + lobbyBack.height)-mw);
    refreshButton.size(mw-lobbyBack.strokeWeight/2, mw-lobbyBack.strokeWeight/2);
@@ -126,8 +126,8 @@ function setupLobbyButtons(){
    }
    for(var i=0; i<numOB; i++){
       let button = createButton("Lobby name: " + lobbies[i]);
-      var w = windowWidth;
-      var h = windowHeight;
+      var w = window.innerWidth;
+      var h = window.innerHeight;
       button.size(
          (lobbyBack.width-lobbyBack.bufferW)*w*2,
          (((lobbyBack.height-lobbyBack.bufferH)*h*2)/lobbyBack.lines)-(lobbyBack.lines-1)*lobbyBack.lineBuffer * h
@@ -153,8 +153,8 @@ function setupLobbyButtons(){
 }
 
 function setupScrollbar(){
-   var w = windowWidth;
-   var h = windowHeight;
+   var w = window.innerWidth;
+   var h = window.innerHeight;
    var mw = scrollbar.width*lobbyBack.bufferW*w;
    // if(scrollbar.needScrollbar){
    //    scrollbar.r = lobbyBack.lines/lobbies.length;
@@ -265,8 +265,8 @@ function lobbyButton(lobbyName){
 
 function drawNewLobby(){
    var button = createButton(newLobby.text);
-   button.position(windowWidth/2-newLobby.width*windowWidth, newLobby.hm*windowHeight-newLobby.height);
-   button.size(newLobby.width*windowWidth*2, newLobby.height*windowHeight);
+   button.position(window.innerWidth/2-newLobby.width*window.innerWidth, newLobby.hm*window.innerHeight-newLobby.height);
+   button.size(newLobby.width*window.innerWidth*2, newLobby.height*window.innerHeight);
    button.style('background-color', coolors.rasp);
    button.style('outline', 'none');
    button.style('color', coolors.white);
@@ -284,8 +284,8 @@ function preload(){
 }
 
 function setup(){
-   cnv = createCanvas(windowWidth, windowHeight);
-   // console.log("w and h", windowWidth, windowHeight);
+   cnv = createCanvas(window.innerWidth, window.innerHeight);
+   // console.log("w and h", window.innerWidth, window.innerHeight);
    // console.log("win and h", window.innerWidth, window.innerHeight);
    background(coolors.white);
    drawLobbyBack();
@@ -306,7 +306,7 @@ function redrawAll(){
 }
 
 function draw(){
-   var x = (windowWidth - width) / 2;
-   var y = (windowHeight - height) / 2;
+   var x = (window.innerWidth - width) / 2;
+   var y = (window.innerHeight - height) / 2;
    cnv.position(x, y);
 }
