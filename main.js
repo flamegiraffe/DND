@@ -11,6 +11,7 @@ var lobbyBack = {
    lines: 6
 };
 
+
 var lobbyDef = {
    lobbyName: "lobby name",
    posX: 25,
@@ -284,6 +285,8 @@ function preload(){
 
 function setup(){
    cnv = createCanvas(windowWidth, windowHeight);
+   // console.log("w and h", windowWidth, windowHeight);
+   // console.log("win and h", window.innerWidth, window.innerHeight);
    background(coolors.white);
    drawLobbyBack();
    setupLobbies();

@@ -73,12 +73,12 @@ var rollTab = {
 };
 var mlogProps = {
    showLog:  false,
-   text: "Log",
+   text: "Show Log",
    logFont: statsFont,
-   buttonWidthP: 0.03,
+   buttonWidthP: 0.05,
    buttonHeightP: 0.05,
-   buttonBufferW: 0.01,
-   buttonBufferH: 0.02,
+   buttonBufferW: 0.005,
+   buttonBufferH: 0.01,
    widthP: 0.4,
    heightP: 0.15,
    textBufferH: 0.1,
@@ -334,6 +334,16 @@ function setup() {
    getMap();
    redrawAll();
    setupUsername();
+   notifyJoin();
+}
+
+function notifyJoin(){
+   var toSend = {
+      request: "join",
+      hexC: myHexC,
+      user: username,
+   };
+   socketSend(toSend);
 }
 
 function setupLog(){
@@ -481,6 +491,8 @@ function onServerMessage(msg){
          redrawAll();
       }else if(msg.request === "roll"){
          myLog(msg);
+      }else if(msg.request === "join"){
+         myLog(msg);
       }
    }
 }
@@ -492,6 +504,8 @@ function myLog(msg){
    var newEntry = "";
    if(msg.request === "roll"){
       newEntry = msg.user + " rolled " + msg.rolls;
+   }else if(msg.request === "join"){
+      newEntry = msg.user + " joined the lobby";
    }
    logEntries[mlogProps.lines-1] = newEntry;
    redrawAll();

@@ -110,7 +110,6 @@ io.on('connection', function(socket) {
   // socket.emit sends connected event back to the client with specified msg
   socket.emit('connected', 'Connected to server!');
   // socket.on('connected', (data) => {
-  console.log(socket.handshake.address);
   // console.log(socket);
   // });
   // how the server responds when the client sends a message
@@ -177,6 +176,17 @@ io.on('connection', function(socket) {
                   status: "success",
                   request: data.request,
                   rolls: data.rolls,
+                  user: data.user,
+               };
+               io.emit('message', toSend);
+            }
+         }
+      }else if(data.request === "join"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               var toSend = {
+                  status: "success",
+                  request: data.request,
                   user: data.user,
                };
                io.emit('message', toSend);
