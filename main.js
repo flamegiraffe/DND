@@ -7,11 +7,9 @@ var lobbyBack = {
    bufferW: 0.1,
    bufferH: 0.02,
    lineBuffer: 0.003,
-   strokeWeight: 6,
+   strokeWeight: 4,
    lines: 6
 };
-
-
 var lobbyDef = {
    lobbyName: "lobby name",
    posX: 25,
@@ -31,7 +29,6 @@ var lobbyDef = {
       }
    }
 };
-
 var newLobby = {
    text: "Create new lobby",
    hm: 0.7,
@@ -66,18 +63,34 @@ var scrollbar = {
    r : 1
 };
 
-var slider;
+var backgroundImg;
+var lobbyBackImg;
+var d20;
 var rediviva;
 var morris;
 
+
+
 function drawLobbyBack(){
-   strokeWeight(lobbyBack.strokeWeight);
-   stroke(coolors.black);
-   fill(coolors.rasp);
    var w = window.innerWidth;
    var h = window.innerHeight;
+   image(backgroundImg, 0,0, w, h);
+   // background(coolors.mar);
+   drawPattern();
+   strokeWeight(lobbyBack.strokeWeight);
+   stroke(coolors.rasp);
+   fill(coolors.white);
+   // noFill();
    rect(((w/2) - lobbyBack.width*w), ((h*lobbyBack.hm) - lobbyBack.height*h), lobbyBack.width*w*2, lobbyBack.height*h*2);
+   // image(lobbyBackImg, ((w/2) - lobbyBack.width*w), ((h*lobbyBack.hm) - lobbyBack.height*h), lobbyBack.width*w*2, lobbyBack.height*h*2);
    strokeWeight(1);
+}
+
+function drawPattern(){
+   var w = window.innerWidth;
+   var h = window.innerHeight;
+   image(d20, w-100, h-100);
+   image(d20, 0, h-100);
 }
 
 function setupLobbies(){
@@ -107,11 +120,12 @@ function setupRefresh(){
    var mw = scrollbar.width*lobbyBack.bufferW*w;
    refreshButton.position((w/2) - lobbyBack.width*w+lobbyBack.strokeWeight/2, h*(lobbyBack.hm + lobbyBack.height)-mw);
    refreshButton.size(mw-lobbyBack.strokeWeight/2, mw-lobbyBack.strokeWeight/2);
-   refreshButton.style('background-color', coolors.white);
-   refreshButton.style('outline', 'none');
-   refreshButton.style('color', coolors.rasp);
-   refreshButton.style('font-size', '20px');
-   refreshButton.style('border', '2px solid ' + coolors.gray);
+   // refreshButton.style('background-color', coolors.white);
+   // refreshButton.style('outline', 'none');
+   // refreshButton.style('color', coolors.rasp);
+   // refreshButton.style('font-size', '20px');
+   // refreshButton.style('border', '2px solid ' + coolors.gray);
+   refreshButton.id('refresh');
    refreshButton.mousePressed(refresh);
 }
 
@@ -124,7 +138,7 @@ function setupLobbyButtons(){
       numOB = lobbies.length;
       scrollbar.needScrollbar = false;
    }
-   for(var i=0; i<numOB; i++){
+   for(var i=buttons.length; i<numOB; i++){
       let button = createButton("Lobby name: " + lobbies[i]);
       var w = window.innerWidth;
       var h = window.innerHeight;
@@ -140,10 +154,11 @@ function setupLobbyButtons(){
          +i*lobbyBack.lineBuffer * h
       );
 
-      button.style('font-size', '15px');
-      button.style('background-color', coolors.white);
-      button.style('outline', 'none');
-      button.style('border', '3px solid ' + coolors.gray);
+      button.class('lobbybutton');
+      // button.style('font-size', '15px');
+      // button.style('background-color', coolors.white);
+      // button.style('outline', 'none');
+      // button.style('border', '3px solid ' + coolors.gray);
       button.mousePressed(() => {
          lobbyButton(button.html().substring(button.html().lastIndexOf(":")+2,));
       });
@@ -265,20 +280,24 @@ function lobbyButton(lobbyName){
 
 function drawNewLobby(){
    var button = createButton(newLobby.text);
+   button.id("NewLobby");
    button.position(window.innerWidth/2-newLobby.width*window.innerWidth, newLobby.hm*window.innerHeight-newLobby.height);
    button.size(newLobby.width*window.innerWidth*2, newLobby.height*window.innerHeight);
-   button.style('background-color', coolors.rasp);
-   button.style('outline', 'none');
-   button.style('color', coolors.white);
-   button.style('font-size', '40px');
-   button.style('font-family', 'morrisroman-black');
-   button.style('border', '2px solid ' + coolors.black);
+   // button.style('background-color', coolors.rasp);
+   // button.style('outline', 'none');
+   // button.style('color', coolors.white);
+   // button.style('font-size', '40px');
+   // button.style('font-family', 'morrisroman-black');
+   // button.style('border', '2px solid ' + coolors.black);
    button.mousePressed(newLobby.fcn);
    // redrawAll();
 }
 
 function preload(){
    setupCoolors();
+   backgroundImg = loadImage('assets/background2.png');
+   lobbyBackImg = loadImage('assets/background1.png');
+   d20 = loadImage('assets/hex.png');
    // rediviva = loadFont('assets/rediviva.ttf');
    morris = loadFont('assets/MorrisRoman-Black.ttf');
 }

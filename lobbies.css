@@ -1,0 +1,58 @@
+:root {
+   --white:#F5F0F6;
+   --black:#1C1D20;
+   --gray:#DCDCDC;
+   --blue:#2AB7CA;
+   --dblue:#00487C;
+   --rasp:#9E0031;
+   --orange:#FAA916;
+   --purp:#662AAF;
+   --mar:#330036;
+   --gold: #FFC700;
+}
+
+/* #NewLobby {
+   background: -webkit-linear-gradient(top, var(--mar), var(--dblue));
+   outline: none;
+   color: var(--white);
+   font-size: 40px;
+   font-family: morrisroman-black;
+   border: 3px solid var(--white);
+} */
+#NewLobby {
+   /* background-color: var(--rasp); */
+   background: -webkit-linear-gradient(top, var(--mar), var(--rasp));
+   outline: none;
+   color: var(--white);
+   font-size: 40px;
+   font-family: morrisroman-black;
+   border: 3px solid var(--white);
+}
+
+#NewLobby:hover {
+   /* background: -webkit-linear-gradient(top, var(--mar), var(--dblue)); */
+   border: 3px solid var(--gold);
+
+}
+
+#refresh {
+   background-color: : var(--white);
+   outline: none;
+   color: var(--rasp);
+   font-size: 20px;
+   border: 2px solid var(--mar);
+}
+#refresh:hover {
+   border: 2px solid var(--gold);
+}
+
+.lobbybutton{
+   font-size: 15px;
+   background-color: var(--white);
+   outline: none;
+   border: 4px solid var(--mar);
+}
+
+.lobbybutton:hover{
+   border: 3px solid var(--gold);
+}
