@@ -118,7 +118,7 @@ function setupRefresh(){
    var w = window.innerWidth;
    var h = window.innerHeight;
    var mw = scrollbar.width*lobbyBack.bufferW*w;
-   refreshButton.position((w/2) - lobbyBack.width*w+lobbyBack.strokeWeight/2, h*(lobbyBack.hm + lobbyBack.height)-mw);
+   refreshButton.position((w/2) - lobbyBack.width*w+lobbyBack.strokeWeight, h*(lobbyBack.hm + lobbyBack.height)-mw-lobbyBack.strokeWeight/2);
    refreshButton.size(mw-lobbyBack.strokeWeight/2, mw-lobbyBack.strokeWeight/2);
    // refreshButton.style('background-color', coolors.white);
    // refreshButton.style('outline', 'none');
@@ -153,12 +153,7 @@ function setupLobbyButtons(){
          +((lobbyBack.height-lobbyBack.bufferH)*h*2*i/lobbyBack.lines)
          +i*lobbyBack.lineBuffer * h
       );
-
       button.class('lobbybutton');
-      // button.style('font-size', '15px');
-      // button.style('background-color', coolors.white);
-      // button.style('outline', 'none');
-      // button.style('border', '3px solid ' + coolors.gray);
       button.mousePressed(() => {
          lobbyButton(button.html().substring(button.html().lastIndexOf(":")+2,));
       });
