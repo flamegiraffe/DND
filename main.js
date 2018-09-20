@@ -290,7 +290,7 @@ function drawNewLobby(){
 
 function preload(){
    setupCoolors();
-   backgroundImg = loadImage('assets/background2.png');
+   backgroundImg = loadImage('assets/background3.png');
    lobbyBackImg = loadImage('assets/background1.png');
    d20 = loadImage('assets/hex.png');
    // rediviva = loadFont('assets/rediviva.ttf');

@@ -1,0 +1,23 @@
+:root {
+   --white:#F5F0F6;
+   --black:#1C1D20;
+   --gray:#DCDCDC;
+   --blue:#2AB7CA;
+   --dblue:#00487C;
+   --rasp:#9E0031;
+   --orange:#FAA916;
+   --purp:#662AAF;
+   --mar:#330036;
+   --gold: #FFC700;
+}
+.menubutton{
+   background-color: var(--white);
+   outline: none;
+   border: 2px solid var(--black);
+   font-size: 1.5vh;
+}
+#log{
+   background-color: var(--white);
+   outline: none;
+   border: 2px solid var(--dblue);
+}

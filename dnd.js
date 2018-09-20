@@ -209,7 +209,7 @@ var uploadMap ={
    posY: 300,
    width: 50,
    height: 30,
-   text: "Drop To Upload",
+   text: "Drop Files",
    show: false,
    fnc: function(butt) {
       clickedOnButton = true;
@@ -353,9 +353,7 @@ function setupLog(){
    logButton = createButton(mlogProps.text);
    logButton.position(w*mlogProps.buttonBufferW, h*(1-mlogProps.buttonBufferH-mlogProps.buttonHeightP));
    logButton.size(mlogProps.buttonWidthP*w, mlogProps.buttonHeightP*h);
-   logButton.style('background-color', coolors.white);
-   logButton.style('outline', 'none');
-   logButton.style('border', '2px solid ' + coolors.dblue);
+   logButton.id('log');
    logButton.mousePressed(mlogProps.toggleLog);
 
    for(var i = 0; i<mlogProps.lines; i++){
@@ -545,11 +543,8 @@ function setupButtons(){
       // button.size(bp.width, bp.height);
       button.position(menuProps.bufferW*w, menuProps.heightStartP*h+buttons.length*(menuProps.buttonHeightP+menuProps.bufferH)*h+menuProps.bufferH*h);
       button.size(menuProps.buttonWidthP*w, menuProps.buttonHeightP*h);
-
-      bp.myButton = button;
-      button.style('background-color', coolors.white);
-      button.style('outline', 'none');
-      button.style('border', '2px solid ' + coolors.black);
+      // bp.myButton = button;
+      button.class('menubutton');
       button.mousePressed(function () {bp.fnc(button);});
       (bp.show) ? button.show() : button.hide();
       buttons.push(button);
