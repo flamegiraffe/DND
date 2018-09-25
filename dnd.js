@@ -15,6 +15,7 @@ var buttons = [];
 var buttonProps = [];
 var characters = [];
 var walls = [];
+var doors = [];
 var characterImgDict = [];
 var selectedChar;
 var clickedOnButton = false;
@@ -137,6 +138,27 @@ var editButton ={
       clickedOnButton = true;
       this.editWalls = !this.editWalls;
       if(this.editWalls){
+         butt.style('background-color', coolors.orange)
+         // this.firstClick = true;
+      }else{
+         butt.style('background-color', coolors.white);
+         building.wallStarted = false;
+      }
+   }
+};
+var doorButton ={
+   editDoors: false,
+   posX: 10,
+   posY: 150,
+   width: 50,
+   height: 30,
+   text: "Edit Doors",
+   show: false,
+   // firstClick: true,
+   fnc: function(butt) {
+      clickedOnButton = true;
+      this.editDoors = !this.editDoors;
+      if(this.editDoors){
          butt.style('background-color', coolors.orange)
          // this.firstClick = true;
       }else{
@@ -388,9 +410,7 @@ function setupRollTab(){
    rollButton = createButton(rollTab.textAct);
    rollButton.position(w*(1-rollTab.buttonWidthP-rollTab.offBufferW), h*(1-rollTab.buttonHeightP-rollTab.offBufferH));
    rollButton.size(rollTab.buttonWidthP*w, rollTab.buttonHeightP*h);
-   rollButton.style('background-color', coolors.white);
-   rollButton.style('outline', 'none');
-   rollButton.style('border', '2px solid ' + coolors.mar);
+   rollButton.id('roll');
    rollButton.mousePressed(rollTab.toggleRollTab);
 
    rollInp = createInput('1d20');
@@ -478,6 +498,9 @@ function onServerMessage(msg){
       }else if(msg.request === "updateWalls"){
          walls = msg.map;
          redrawAll();
+      }else if(msg.request === "updateDoors"){
+         doors = msg.doors;
+         redrawAll();
       }else if(msg.request === "updateChars"){
          characters = msg.characters;
          console.log("from server chars: ", msg.characters);
@@ -519,6 +542,15 @@ function updateServerWalls(){
    socketSend(toSend);
 }
 
+function updateServerDoors(){
+   var toSend = {
+      request: "updateDoors",
+      hexC: myHexC,
+      doors
+   };
+   socketSend(toSend);
+}
+
 function updateServerChars(){
    // var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
    var toSend = {
@@ -532,6 +564,7 @@ function updateServerChars(){
 function setupButtons(){
    buttonProps.push(showMenuButton);
    buttonProps.push(editButton);
+   buttonProps.push(doorButton);
    buttonProps.push(addCharButton);
    buttonProps.push(downloadMap);
    buttonProps.push(uploadMap);
@@ -643,7 +676,8 @@ function drawHiLi() {
    if( hiLi.isHigh ) {
       stroke( coolors.blue );
       strokeWeight( 2 );
-      fill( coolors.white );
+      // fill( coolors.white );
+      noFill();
       rect( (hiLi.posX + xOff) * gridSpacing,
             (hiLi.posY + yOff) * gridSpacing,
             gridSpacing,
@@ -676,11 +710,30 @@ function drawMenu(){
 }
 
 function drawWalls(){
-   walls.forEach(w => {
+   walls.forEach(d => {
       strokeWeight(building.wallWidth);
       stroke(coolors.black);
       fill(coolors.black);
+      line((d.x1+xOff)*gridSpacing, (d.y1+yOff)*gridSpacing, (d.x2+xOff)*gridSpacing, (d.y2+yOff)*gridSpacing);
+      strokeWeight(1);
+   });
+}
+
+function drawDoors(){
+   doors.forEach(w => {
+      strokeWeight(building.wallWidth);
+      // fill(coolors.black);
+      var x1 = (w.x1+xOff)*gridSpacing;
+      var y1 = (w.y1+yOff)*gridSpacing;
+      var x2 = (w.x2+xOff)*gridSpacing;
+      var y2 = (w.y2+yOff)*gridSpacing;
+      var th = 1/3;
+      var th2 = 2/3;
+      stroke(coolors.black);
       line((w.x1+xOff)*gridSpacing, (w.y1+yOff)*gridSpacing, (w.x2+xOff)*gridSpacing, (w.y2+yOff)*gridSpacing);
+      stroke(coolors.orange);
+      strokeWeight(2*building.wallWidth);
+      line(th2*x1+th*x2, th2*y1+th*y2, th*x1+th2*x2, th*y1+th2*y2);
       strokeWeight(1);
    });
 }
@@ -745,6 +798,7 @@ function drawLog(){
    var w = window.innerWidth;
    var h = window.innerHeight;
    if(mlogProps.showLog){
+      textAlign(LEFT);
       strokeWeight(2);
       stroke(coolors.mar);
       fill(coolors.dblue);
@@ -775,6 +829,7 @@ function redrawAll() {
    background( coolors.white );
    drawGrid();
    drawWalls();
+   drawDoors();
    drawHiLi();
    drawChars();
    drawStats();
@@ -791,24 +846,45 @@ function editWallsClick(gx, gy){
       if(building.wallStarted){
          building.wallStarted = false;
          var remove = false;
-         for(var i = 0; i<walls.length; i++){
-            w = walls[i];
-            if((w.x1 === building.firstCornerX && w.x2 === gx) || (w.x2 === building.firstCornerX && w.x1 === gx)){
-               if((w.y1 === building.firstCornerY && w.y2 === gy) || (w.y2 === building.firstCornerY && w.y1 === gy)){
-                  walls.splice(i, 1);
-                  remove = true;
+         if(editButton.editWalls){
+            for(var i = 0; i<walls.length; i++){
+               w = walls[i];
+               if((w.x1 === building.firstCornerX && w.x2 === gx) || (w.x2 === building.firstCornerX && w.x1 === gx)){
+                  if((w.y1 === building.firstCornerY && w.y2 === gy) || (w.y2 === building.firstCornerY && w.y1 === gy)){
+                     walls.splice(i, 1);
+                     remove = true;
+                  }
                }
             }
+            if(!remove){
+               walls.push({
+                  x1: building.firstCornerX,
+                  y1: building.firstCornerY,
+                  x2: gx,
+                  y2: gy
+               });
+            }
+            updateServerWalls();
+         }else{
+            for(var i = 0; i<doors.length; i++){
+               d = doors[i];
+               if((d.x1 === building.firstCornerX && d.x2 === gx) || (d.x2 === building.firstCornerX && d.x1 === gx)){
+                  if((d.y1 === building.firstCornerY && d.y2 === gy) || (d.y2 === building.firstCornerY && d.y1 === gy)){
+                     doors.splice(i, 1);
+                     remove = true;
+                  }
+               }
+            }
+            if(!remove){
+               doors.push({
+                  x1: building.firstCornerX,
+                  y1: building.firstCornerY,
+                  x2: gx,
+                  y2: gy
+               });
+            }
+            updateServerDoors();
          }
-         if(!remove){
-            walls.push({
-               x1: building.firstCornerX,
-               y1: building.firstCornerY,
-               x2: gx,
-               y2: gy
-            });
-         }
-         updateServerWalls();
       }else{
          building.firstCornerX = gx;
          building.firstCornerY = gy;
@@ -853,7 +929,7 @@ function mousePressed() {
    if(!clickedOnButton){
       var gx = Math.floor(mouseX / gridSpacing) - xOff;
       var gy = Math.floor(mouseY / gridSpacing) - yOff;
-      if(editButton.editWalls){
+      if(editButton.editWalls || doorButton.editDoors){
          editWallsClick(gx, gy);
       }else{
          playClick(gx, gy);

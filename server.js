@@ -142,6 +142,18 @@ io.on('connection', function(socket) {
                io.emit('message', toSend);
             }
          }
+      }else if(data.request === "updateDoors"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               db[i].doors = data.doors;
+               var toSend = {
+                  status: "success",
+                  request: data.request,
+                  doors: db[i].doors
+               };
+               io.emit('message', toSend);
+            }
+         }
       }else if(data.request === "updateChars"){
          for(var i = 0; i<db.length; i++){
             if(db[i].hexCode === data.hexC){
