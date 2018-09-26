@@ -19,6 +19,8 @@ var doors = [];
 var characterImgDict = [];
 var selectedChar;
 var clickedOnButton = false;
+var placeCharClick = false;
+var charToPlace;
 
 var building ={
    wallStarted: false,
@@ -605,13 +607,14 @@ function uploadFile(file){ //for uploading maps or characters
          updateServerWalls();
          updateServerChars();
       }else if(rec.dd === "character"){
+         placeCharClick = true;
          if(findInDict(rec.url)===-1){
             var img = loadImage(rec.url, (img) => {
                characterImgDict.push({
                   key: rec.url,
                   value: img
                });
-               characters.push({
+               charToPlace = {
                   posX : 0,
                   posY: 0,
                   showStats: rec.showStats,
@@ -619,13 +622,22 @@ function uploadFile(file){ //for uploading maps or characters
                   name: rec.name,
                   maxHealth: rec.maxHealth,
                   saveThrows: rec.saveThrows
-               });
-               updateServerChars();
-               redrawAll();
+               };
+               // characters.push({
+               //    posX : 0,
+               //    posY: 0,
+               //    showStats: rec.showStats,
+               //    url: rec.url,
+               //    name: rec.name,
+               //    maxHealth: rec.maxHealth,
+               //    saveThrows: rec.saveThrows
+               // });
+               // updateServerChars();
+               // redrawAll();
             });
          }else{
             var img = characterImgDict[findInDict(rec.url)].value;
-            characters.push({
+            charToPlace = {
                posX : 0,
                posY: 0,
                showStats: rec.showStats,
@@ -633,9 +645,18 @@ function uploadFile(file){ //for uploading maps or characters
                name: rec.name,
                maxHealth: rec.maxHealth,
                saveThrows: rec.saveThrows
-            });
-            updateServerChars();
-            redrawAll();
+            };
+            // characters.push({
+            //    posX : 0,
+            //    posY: 0,
+            //    showStats: rec.showStats,
+            //    url: rec.url,
+            //    name: rec.name,
+            //    maxHealth: rec.maxHealth,
+            //    saveThrows: rec.saveThrows
+            // });
+            // updateServerChars();
+            // redrawAll();
          }
       }
    }
@@ -929,10 +950,19 @@ function mousePressed() {
    if(!clickedOnButton){
       var gx = Math.floor(mouseX / gridSpacing) - xOff;
       var gy = Math.floor(mouseY / gridSpacing) - yOff;
-      if(editButton.editWalls || doorButton.editDoors){
-         editWallsClick(gx, gy);
+      if(placeCharClick){
+         placeCharClick = false;
+         charToPlace.posX = gx;
+         charToPlace.posY = gy;
+         characters.push(charToPlace);
+         updateServerChars();
+         redrawAll();
       }else{
-         playClick(gx, gy);
+         if(editButton.editWalls || doorButton.editDoors){
+            editWallsClick(gx, gy);
+         }else{
+            playClick(gx, gy);
+         }
       }
       redrawAll();
    }else{
