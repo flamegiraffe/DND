@@ -52,7 +52,7 @@ var rollTab = {
    textDeact: "Hide",
    buttonWidthP: 0.05,
    textHeight: 0.4,
-   buttonHeightP: 0.07,
+   buttonHeightP: 0.05,
    inpWidthP: 0.15,
    inpHeightP: 0.05,
    inpWidthC: 0.5,
@@ -60,7 +60,7 @@ var rollTab = {
    textBufferL: 0.1,
    textBufferD: 0.1,
    offBufferW: 0.01,
-   offBufferH: 0.02,
+   offBufferH: 0.01,
    toggleRollTab: function() {
       clickedOnButton = true;
       if(rollTab.showTab){
@@ -80,9 +80,9 @@ var mlogProps = {
    logFont: statsFont,
    buttonWidthP: 0.05,
    buttonHeightP: 0.05,
-   buttonBufferW: 0.005,
+   buttonBufferW: 0.01,
    buttonBufferH: 0.01,
-   widthP: 0.4,
+   widthP: 0.3,
    heightP: 0.15,
    textBufferH: 0.1,
    textBufferW: 0.05,
@@ -140,11 +140,13 @@ var editButton ={
       clickedOnButton = true;
       this.editWalls = !this.editWalls;
       if(this.editWalls){
-         butt.style('background-color', coolors.orange)
+         butt.style('background-color', coolors.orange);
+         cursor(CROSS);
          // this.firstClick = true;
       }else{
          butt.style('background-color', coolors.white);
          building.wallStarted = false;
+         cursor(ARROW);
       }
    }
 };
@@ -161,9 +163,11 @@ var doorButton ={
       clickedOnButton = true;
       this.editDoors = !this.editDoors;
       if(this.editDoors){
+         cursor(CROSS);
          butt.style('background-color', coolors.orange)
          // this.firstClick = true;
       }else{
+         cursor(ARROW);
          butt.style('background-color', coolors.white);
          building.wallStarted = false;
       }
@@ -263,7 +267,7 @@ function preload() {
 
 function loadFonts(){
    // statsFont = loadFont('assets/Hero Light.otf');
-   statsFont = loadFont('assets/Rediviva.ttf');
+   statsFont = loadFont('assets/Kingthings Foundation.ttf');
    hero= loadFont('assets/Hero Light.otf');
    mlogProps.logFont = hero;
 }
@@ -282,13 +286,15 @@ function createNewChar(name, imgURL, maxH, saveThrows){
       var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
       saveAs(blob, fn+'.txt');
    }
+   placeCharClick = true;
+   cursor(CROSS);
    if(findInDict(imgURL)===-1){
       var img = loadImage(imgURL, (img) => {
          characterImgDict.push({
             key: imgURL,
             value: img
          });
-         characters.push({
+         charToPlace = {
             posX : 0,
             posY: 0,
             showStats: true,
@@ -296,13 +302,22 @@ function createNewChar(name, imgURL, maxH, saveThrows){
             name,
             maxHealth: maxH,
             saveThrows
-         });
-         updateServerChars();
-         redrawAll();
+         };
+         // characters.push({
+         //    posX : 0,
+         //    posY: 0,
+         //    showStats: true,
+         //    url: imgURL,
+         //    name,
+         //    maxHealth: maxH,
+         //    saveThrows
+         // });
+         // updateServerChars();
+         // redrawAll();
       });
    }else{
       var img = characterImgDict[findInDict(imgURL)].value;
-      characters.push({
+      charToPlace = {
          posX : 0,
          posY: 0,
          showStats: true,
@@ -310,9 +325,18 @@ function createNewChar(name, imgURL, maxH, saveThrows){
          name,
          maxHealth: maxH,
          saveThrows
-      });
-      updateServerChars();
-      redrawAll();
+      };
+      // characters.push({
+      //    posX : 0,
+      //    posY: 0,
+      //    showStats: true,
+      //    url: imgURL,
+      //    name,
+      //    maxHealth: maxH,
+      //    saveThrows
+      // });
+      // updateServerChars();
+      // redrawAll();
 
    }
 }
@@ -418,6 +442,7 @@ function setupRollTab(){
    rollInp = createInput('1d20');
    rollInp.position(w*(1-rollTab.widthP*(1-rollTab.inpWidthC)-rollTab.inpWidthP/2-rollTab.offBufferW), h*(1-rollTab.heightP*(1-rollTab.inpHeightC)-rollTab.offBufferH-rollTab.inpHeightP/2));
    rollInp.size(rollTab.inpWidthP*w, rollTab.inpHeightP*h);
+   rollInp.id('rollInp');
    rollInp.mousePressed(() => {
       clickedOnButton = true;
    });
@@ -526,12 +551,21 @@ function myLog(msg){
    }
    var newEntry = "";
    if(msg.request === "roll"){
-      newEntry = msg.user + " rolled " + msg.rolls;
+      newEntry = msg.user + " rolled " + prettyPrint(msg.rolls);
    }else if(msg.request === "join"){
       newEntry = msg.user + " joined the lobby";
    }
    logEntries[mlogProps.lines-1] = newEntry;
    redrawAll();
+}
+
+function prettyPrint(arr){
+   var res = "";
+   for(var i = 0; i<arr.length-1; i++){
+      res += arr[i]+", ";
+   }
+   res += arr[arr.length-1];
+   return res;
 }
 
 function updateServerWalls(){
@@ -608,6 +642,7 @@ function uploadFile(file){ //for uploading maps or characters
          updateServerChars();
       }else if(rec.dd === "character"){
          placeCharClick = true;
+         cursor(CROSS);
          if(findInDict(rec.url)===-1){
             var img = loadImage(rec.url, (img) => {
                characterImgDict.push({
@@ -695,7 +730,7 @@ function drawChars() {
 
 function drawHiLi() {
    if( hiLi.isHigh ) {
-      stroke( coolors.blue );
+      stroke( coolors.gold );
       strokeWeight( 2 );
       // fill( coolors.white );
       noFill();
@@ -763,51 +798,75 @@ function drawStats(){
    if(hiLi.isHigh){
       if(selectedChar.showStats){
          strokeWeight(2);
-         stroke(coolors.mar);
-         fill(coolors.purp);
+         stroke(coolors.blue);
+         fill(coolors.ddblue);
          var w = window.innerWidth;
          var h = window.innerHeight;
          rect(w-statsProps.widthP*w, 0, statsProps.widthP*w, statsProps.heightP*h);
          fill(coolors.white);
          noStroke();
-         textSize(h*statsProps.heightP*statsProps.lineHeight);
-         // textAlign(CENTER);
+         // textSize(h*statsProps.heightP*statsProps.lineHeight);
+         // textSize(12);
+
          textFont(statsFont);
+         var tw = statsProps.widthP*w-(1-2*statsProps.bufferW)*statsProps.widthP*w;
+         var th = (statsProps.heightP*h-(1-2*statsProps.bufferH)*statsProps.heightP*h)/statsProps.lines;
+
          textAlign(LEFT);
+         textSize(calcFontSize("Name: ", tw/4, th));
          text("Name: ", w*(1-(1-statsProps.bufferW)*statsProps.widthP), (statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+
          textAlign(RIGHT);
+         textSize(calcFontSize(selectedChar.name, tw/2, th));
          text(selectedChar.name, w*(1-statsProps.bufferW*statsProps.widthP), (statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+
          textAlign(LEFT);
+         textSize(calcFontSize("Max health: ", tw/2, 3*th/4));
          text("Max health: ", w*(1-(1-statsProps.bufferW)*statsProps.widthP), 2*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+
          textAlign(RIGHT);
+         textSize(calcFontSize(selectedChar.maxHealth, tw/4, 3*th/4));
          text(selectedChar.maxHealth, w*(1-statsProps.bufferW*statsProps.widthP), 2*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+
          textAlign(LEFT);
+         textSize(calcFontSize("Saves: ", tw/3, 3*th/4));
          text("Saves: ", w*(1-(1-statsProps.bufferW)*statsProps.widthP), 3*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
+
          textAlign(RIGHT);
+         textSize(calcFontSize(selectedChar.saveThrows, tw/3, 3*th/4));
          text(selectedChar.saveThrows, w*(1-statsProps.bufferW*statsProps.widthP), 3*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
          strokeWeight(1);
       }
    }
 }
 
+function calcFontSize(str, wd, hg){
+   textSize(12);
+   minSizeW = 12/textWidth(str) * (wd);
+   minSizeH = 12/(textDescent()+textAscent()) * hg;
+   ts = min(minSizeW, minSizeH)*5;
+   return ts;
+}
+
 function drawRoll(){
    if(rollTab.showTab){
-      strokeWeight(3);
-      stroke(coolors.purp);
-      fill(coolors.mar);
+      strokeWeight(2);
+      stroke(coolors.gold);
+      fill(coolors.ddblue);
       var w = window.innerWidth;
       var h = window.innerHeight;
       rect((1-rollTab.widthP-rollTab.offBufferW)*w, (1-rollTab.heightP-rollTab.offBufferH)*h, (rollTab.widthP+rollTab.offBufferW)*w, (rollTab.heightP+rollTab.offBufferH)*h);
       strokeWeight(1);
       textSize(rollTab.heightP*window.innerHeight*rollTab.textHeight);
       fill(coolors.white);
+      noStroke();
       textFont(statsFont);
       textAlign(LEFT);
       text("Rolled: " + rolledVal, (1-(1-rollTab.textBufferL)*rollTab.widthP-rollTab.offBufferW)*window.innerWidth, (1-rollTab.heightP*rollTab.textBufferD-rollTab.offBufferH)*window.innerHeight);
    }else{
-      strokeWeight(3);
-      stroke(coolors.purp);
-      fill(coolors.mar);
+      strokeWeight(2);
+      stroke(coolors.black);
+      fill(coolors.ddblue);
       var w = window.innerWidth;
       var h = window.innerHeight;
       rect((1-2*rollTab.offBufferW-rollTab.buttonWidthP)*w, (1-2*rollTab.offBufferH-rollTab.buttonHeightP)*h, (2*rollTab.offBufferW+rollTab.buttonWidthP)*w, (2*rollTab.offBufferH+rollTab.buttonHeightP)*h);
@@ -821,12 +880,13 @@ function drawLog(){
    if(mlogProps.showLog){
       textAlign(LEFT);
       strokeWeight(2);
-      stroke(coolors.mar);
-      fill(coolors.dblue);
+      stroke(coolors.gold);
+      fill(coolors.ddblue);
       rect(0, (1-mlogProps.buttonBufferH-mlogProps.heightP)*h, w*(mlogProps.buttonBufferW + mlogProps.widthP), h*(mlogProps.buttonBufferH + mlogProps.heightP));
       strokeWeight(1);
 
-      textFont(mlogProps.logFont);
+      // textFont(mlogProps.logFont);
+      textFont(statsFont);
       // textSize(20);
       textSize(((mlogProps.heightP*(1-mlogProps.textBufferH*2))*h)/mlogProps.lines);
       fill(coolors.white);
@@ -838,8 +898,8 @@ function drawLog(){
       }
    }else{
       strokeWeight(2);
-      stroke(coolors.mar);
-      fill(coolors.dblue);
+      stroke(coolors.black);
+      fill(coolors.ddblue);
       rect(0, (1-2*mlogProps.buttonBufferH-mlogProps.buttonHeightP)*h, w*(2*mlogProps.buttonBufferW + mlogProps.buttonWidthP), h*(2*mlogProps.buttonBufferH + mlogProps.buttonHeightP));
       strokeWeight(1);
    }
@@ -952,6 +1012,7 @@ function mousePressed() {
       var gy = Math.floor(mouseY / gridSpacing) - yOff;
       if(placeCharClick){
          placeCharClick = false;
+         cursor(ARROW);
          charToPlace.posX = gx;
          charToPlace.posY = gy;
          characters.push(charToPlace);
