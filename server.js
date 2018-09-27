@@ -41,6 +41,13 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname+'/main.html'));
   // res.send('Hello Universe!');
 });
+
+app.get('/help', (req, res) => {
+  // req is the request, res is the resolution (packet sent back)
+  // res can send a file with .sendFile, that can be an html
+  res.sendFile(path.resolve(__dirname+'/help.html'));
+  // res.send('Hello Universe!');
+});
 // app.get('/play', (req, res) => {
 //   // req is the request, res is the resolution (packet sent back)
 //   // res can send a file with .sendFile, that can be an html
@@ -200,6 +207,18 @@ io.on('connection', function(socket) {
                   status: "success",
                   request: data.request,
                   user: data.user,
+               };
+               io.emit('message', toSend);
+            }
+         }
+      }else if(data.request === "name"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               var toSend = {
+                  status: "success",
+                  request: data.request,
+                  name1: data.name1,
+                  name2: data.name2
                };
                io.emit('message', toSend);
             }

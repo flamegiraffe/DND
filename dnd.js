@@ -281,6 +281,10 @@ var statsFont;
 // var removeImg;
 var removeButton;
 
+//------------------------------------------------------------------------------------------------------------
+//                               FUNCTIONS                                                                    |
+//------------------------------------------------------------------------------------------------------------
+
 function preload() {
    loadFonts();
    setupSocket();
@@ -510,6 +514,16 @@ function sendRoll(res){
    socketSend(toSend);
 }
 
+function sendNameChange(name1, name2){
+   var toSend = {
+      request: "name",
+      hexC: myHexC,
+      name1,
+      name2
+   };
+   socketSend(toSend);
+}
+
 function rollOneTypeDie(s){
    var cleanS = "";
    for(i = 0; i<s.length; i++){
@@ -568,6 +582,8 @@ function onServerMessage(msg){
          myLog(msg);
       }else if(msg.request === "join"){
          myLog(msg);
+      }else if(msg.request === "name"){
+         myLog(msg);
       }
    }
 }
@@ -581,6 +597,8 @@ function myLog(msg){
       newEntry = msg.user + " rolled " + prettyPrint(msg.rolls);
    }else if(msg.request === "join"){
       newEntry = msg.user + " joined the lobby";
+   }else if(msg.request === "name"){
+      newEntry = msg.name1 + " changed name to " + msg.name2;
    }
    logEntries[mlogProps.lines-1] = newEntry;
    redrawAll();
@@ -647,6 +665,23 @@ function setupButtons(){
    });
    buttons[buttons.length-1].drop(uploadFile);
 
+   var nb = createButton("Change name");
+   nb.position(menuProps.bufferW*w*3+menuProps.buttonWidthP*w, menuProps.heightStartP*h+menuProps.bufferH*h);
+   nb.size(menuProps.buttonWidthP*w, menuProps.buttonHeightP*h);
+   // bp.myButton = button;
+   nb.class('menubutton');
+   nb.mousePressed(changeUsername);
+   nb.hide();
+   buttons.push(nb);
+
+   var hb = createButton("Help");
+   hb.position(menuProps.bufferW*w*3+menuProps.buttonWidthP*w, menuProps.heightStartP*h+2*menuProps.bufferH*h+menuProps.buttonHeightP*h);
+   hb.size(menuProps.buttonWidthP*w, menuProps.buttonHeightP*h);
+   // bp.myButton = button;
+   hb.class('menubutton');
+   hb.mousePressed(help);
+   hb.hide();
+   buttons.push(hb);
 
    removeButton = createButton("Remove");
    removeButton.position(w*(1-statsProps.removeWidth/2-statsProps.widthP/2), (statsProps.heightP-statsProps.removeHeight/2)*h);
@@ -654,6 +689,20 @@ function setupButtons(){
    removeButton.mousePressed(removeChar);
    removeButton.id('remove');
    removeButton.hide();
+}
+
+function help(){
+   document.location.href = "/help";
+}
+
+function changeUsername(){
+   var val = getCookieValue("username");
+   var un = prompt("Please enter your username: ", "");
+   if(un!=null){
+      username = un;
+      document.cookie = `username=${un}`;
+      sendNameChange(val, un);
+   }
 }
 
 function removeChar(){
@@ -803,8 +852,13 @@ function drawMenu(){
       rect(
          0,
          menuProps.heightStartP*h,
-         (menuProps.buttonWidthP+menuProps.bufferW*2)*w,
-         (buttons.length*menuProps.buttonHeightP+(buttons.length+1)*menuProps.bufferH)*h);
+         (menuProps.buttonWidthP+menuProps.bufferW*2)*w*2,
+         ((6)*menuProps.buttonHeightP+(7)*menuProps.bufferH)*h);
+      // rect(
+      //    (menuProps.buttonWidthP+menuProps.bufferW*2)*w,
+      //    menuProps.heightStartP*h,
+      //    (menuProps.buttonWidthP+menuProps.bufferW*2)*w,
+      //    ((buttons.length-6)*menuProps.buttonHeightP+(buttons.length-5)*menuProps.bufferH)*h);
    }else{
       rect(
          0,
