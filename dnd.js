@@ -142,7 +142,11 @@ var editButton ={
       clickedOnButton = true;
       this.editWalls = !this.editWalls;
       if(this.editWalls){
+         for(var i = 1; i<buttons.length; i++){
+            buttons[i].style('background-color', coolors.white);
+         }
          butt.style('background-color', coolors.orange);
+         doorButton.editDoors = false;
          cursor(CROSS);
          // this.firstClick = true;
       }else{
@@ -166,6 +170,11 @@ var doorButton ={
       this.editDoors = !this.editDoors;
       if(this.editDoors){
          cursor(CROSS);
+         for(var i = 1; i<buttons.length; i++){
+            buttons[i].style('background-color', coolors.white);
+         }
+         butt.style('background-color', coolors.orange);
+         editButton.editWalls = false;
          butt.style('background-color', coolors.orange)
          // this.firstClick = true;
       }else{
