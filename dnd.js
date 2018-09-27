@@ -42,7 +42,9 @@ var statsProps = {
    lineHeight: 0.2,
    bufferW: 0.1,
    bufferH: 0.1,
-   lines: 3
+   lines: 3,
+   removeWidth: 0.1,
+   removeHeight: 0.05
 };
 var rollTab = {
    showTab: false,
@@ -257,6 +259,8 @@ var myHexC = document.location.href.substring(document.location.href.lastIndexOf
 var username;
 var hero;
 var statsFont;
+// var removeImg;
+var removeButton;
 
 function preload() {
    loadFonts();
@@ -463,11 +467,15 @@ function rollDice(s){
       rolls: []
    };
    s.split("+").forEach(st => {
-      var rolled = rollOneTypeDie(st);
-      res.sum += rolled.sum;
-      rolled.rolls.forEach(r => {
-         res.rolls.push(r);
-      });
+      if(st.includes("d")){
+         var rolled = rollOneTypeDie(st);
+         res.sum += rolled.sum;
+         rolled.rolls.forEach(r => {
+            res.rolls.push(r);
+         });
+      }else{
+         res.sum += parseInt(st);
+      }
    });
    sendRoll(res);
    return res.sum;
@@ -621,6 +629,19 @@ function setupButtons(){
    buttons[buttons.length-1].drop(uploadFile);
 
 
+   removeButton = createButton("Remove");
+   removeButton.position(w*(1-statsProps.removeWidth/2-statsProps.widthP/2), (statsProps.heightP-statsProps.removeHeight/2)*h);
+   removeButton.size(statsProps.removeWidth*w, statsProps.removeHeight*h);
+   removeButton.mousePressed(removeChar);
+   removeButton.id('remove');
+   removeButton.hide();
+}
+
+function removeChar(){
+   hiLi.isHigh = false;
+   characters.splice(characters.lastIndexOf(selectedChar), 1);
+   updateServerChars();
+   redrawAll();
 }
 
 function uploadFile(file){ //for uploading maps or characters
@@ -803,6 +824,9 @@ function drawStats(){
          var w = window.innerWidth;
          var h = window.innerHeight;
          rect(w-statsProps.widthP*w, 0, statsProps.widthP*w, statsProps.heightP*h);
+
+         removeButton.show();
+
          fill(coolors.white);
          noStroke();
          // textSize(h*statsProps.heightP*statsProps.lineHeight);
@@ -837,6 +861,8 @@ function drawStats(){
          text(selectedChar.saveThrows, w*(1-statsProps.bufferW*statsProps.widthP), 3*(statsProps.heightP*(1-2*statsProps.bufferH)*h)/statsProps.lines);
          strokeWeight(1);
       }
+   }else{
+      removeButton.hide();
    }
 }
 

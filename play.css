@@ -36,3 +36,14 @@
    outline: none;
    border: 1px solid var(--gold);
 }
+#remove{
+   background-color: var(--rasp);
+   color: var(--white);
+   outline: none;
+   border: 1px solid var(--blue);
+   font-family: Kingthings Foundation;
+   font-size: 3vh;
+}
+#remove:hover{
+   border: 1px solid var(--gold);
+}
