@@ -219,6 +219,10 @@ var downloadMap ={
             x2s: [],
             y1s: [],
             y2s: [],
+            x1ds: [],
+            x2ds: [],
+            y1ds: [],
+            y2ds: [],
             characters: []
          };
          for(var i = 0; i<walls.length; i++){
@@ -226,6 +230,12 @@ var downloadMap ={
             toSave.y1s.push(walls[i].y1);
             toSave.x2s.push(walls[i].x2);
             toSave.y2s.push(walls[i].y2);
+         }
+         for(var i = 0; i<doors.length; i++){
+            toSave.x1ds.push(doors[i].x1);
+            toSave.y1ds.push(doors[i].y1);
+            toSave.x2ds.push(doors[i].x2);
+            toSave.y2ds.push(doors[i].y2);
          }
          toSave.characters = characters;
          var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
@@ -657,9 +667,20 @@ function uploadFile(file){ //for uploading maps or characters
                y2: rec.y2s[i]
             });
          }
+         var newwalls = [];
+         for(var i = 0; i<rec.x1ds.length; i++){
+            newwalls.push({
+               x1: rec.x1ds[i],
+               y1: rec.y1ds[i],
+               x2: rec.x2ds[i],
+               y2: rec.y2ds[i]
+            });
+         }
          characters = rec.characters;
          walls = newmap;
+         doors = newwalls;
          updateServerWalls();
+         updateServerDoors();
          updateServerChars();
       }else if(rec.dd === "character"){
          placeCharClick = true;
