@@ -406,6 +406,7 @@ function setup() {
    setupButtons();
    setupRollTab();
    setupLog();
+   getDoors();
    getMap();
    redrawAll();
    setupUsername();
@@ -548,6 +549,14 @@ function roll(a, s){
    return res;
 }
 
+function getDoors(){
+   var toSend = {
+      request: "getDoors",
+      hexC: myHexC
+   };
+   socketSend(toSend);
+}
+
 function getMap(){
    // var myHexC = document.location.href.substring(document.location.href.lastIndexOf("/")+1, );
    var toSend = {
@@ -562,6 +571,9 @@ function onServerMessage(msg){
    if(msg.status==="success"){
       if(msg.request==="getMap"){
          walls = msg.map;
+         redrawAll();
+      }else if(msg.request === "getDoors"){
+         doors = msg.doors;
          redrawAll();
       }else if(msg.request === "updateWalls"){
          walls = msg.map;
