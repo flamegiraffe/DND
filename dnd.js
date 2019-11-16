@@ -273,36 +273,47 @@ var downloadMap ={
    show: false,
    fnc: function(butt) {
       clickedOnButton = true;
-      var name = prompt("Name the file:", "");
-      if(name!=null){
-         var toSave = {
-            dd: "map",
-            x1s: [],
-            x2s: [],
-            y1s: [],
-            y2s: [],
-            x1ds: [],
-            x2ds: [],
-            y1ds: [],
-            y2ds: [],
-            characters: []
-         };
-         for(var i = 0; i<walls.length; i++){
-            toSave.x1s.push(walls[i].x1);
-            toSave.y1s.push(walls[i].y1);
-            toSave.x2s.push(walls[i].x2);
-            toSave.y2s.push(walls[i].y2);
+      // var name = prompt("Name the file:", "");
+      swal({
+         text: "Name the file:",
+         content: {
+            element: "input",
+            attributes:{
+               placeholder: "Underdark Entrance",
+            }
          }
-         for(var i = 0; i<doors.length; i++){
-            toSave.x1ds.push(doors[i].x1);
-            toSave.y1ds.push(doors[i].y1);
-            toSave.x2ds.push(doors[i].x2);
-            toSave.y2ds.push(doors[i].y2);
+      })
+      .then(name=>{
+         if(name!=null){
+            var toSave = {
+               dd: "map",
+               x1s: [],
+               x2s: [],
+               y1s: [],
+               y2s: [],
+               x1ds: [],
+               x2ds: [],
+               y1ds: [],
+               y2ds: [],
+               characters: []
+            };
+            for(var i = 0; i<walls.length; i++){
+               toSave.x1s.push(walls[i].x1);
+               toSave.y1s.push(walls[i].y1);
+               toSave.x2s.push(walls[i].x2);
+               toSave.y2s.push(walls[i].y2);
+            }
+            for(var i = 0; i<doors.length; i++){
+               toSave.x1ds.push(doors[i].x1);
+               toSave.y1ds.push(doors[i].y1);
+               toSave.x2ds.push(doors[i].x2);
+               toSave.y2ds.push(doors[i].y2);
+            }
+            toSave.characters = characters;
+            var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, name+'.txt');
          }
-         toSave.characters = characters;
-         var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
-         saveAs(blob, name+'.txt');
-      }
+      });
    }
 };
 var uploadMap ={
@@ -353,27 +364,60 @@ function loadFonts(){
 }
 
 function createNewChar(name, imgURL, maxH, saveThrows){
-   var fn = prompt("Please enter filename");
-   if(fn!=null){
-      var toSave = {
-         dd: "character",
-         showStats: true,
-         url: imgURL,
-         name,
-         maxHealth: maxH,
-         saveThrows
-      };
-      var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
-      saveAs(blob, fn+'.txt');
-   }
-   placeCharClick = true;
-   cursor(CROSS);
-   if(findInDict(imgURL)===-1){
-      var img = loadImage(imgURL, (img) => {
-         characterImgDict.push({
-            key: imgURL,
-            value: img
+   // var fn = prompt("Please enter filename");
+   swal({
+      text: "Please enter filename:",
+      content: {
+         element: "input",
+         attributes:{
+            placeholder: "Gandalf",
+         }
+      }
+   })
+   .then(fn=>{
+      if(fn!=null){
+         var toSave = {
+            dd: "character",
+            showStats: true,
+            url: imgURL,
+            name,
+            maxHealth: maxH,
+            saveThrows
+         };
+         var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain;charset=utf-8"});
+         saveAs(blob, fn+'.txt');
+      }
+      placeCharClick = true;
+      cursor(CROSS);
+      if(findInDict(imgURL)===-1){
+         var img = loadImage(imgURL, (img) => {
+            characterImgDict.push({
+               key: imgURL,
+               value: img
+            });
+            charToPlace = {
+               posX : 0,
+               posY: 0,
+               showStats: true,
+               url: imgURL,
+               name,
+               maxHealth: maxH,
+               saveThrows
+            };
+            // characters.push({
+            //    posX : 0,
+            //    posY: 0,
+            //    showStats: true,
+            //    url: imgURL,
+            //    name,
+            //    maxHealth: maxH,
+            //    saveThrows
+            // });
+            // updateServerChars();
+            // redrawAll();
          });
+      }else{
+         var img = characterImgDict[findInDict(imgURL)].value;
          charToPlace = {
             posX : 0,
             posY: 0,
@@ -394,31 +438,8 @@ function createNewChar(name, imgURL, maxH, saveThrows){
          // });
          // updateServerChars();
          // redrawAll();
-      });
-   }else{
-      var img = characterImgDict[findInDict(imgURL)].value;
-      charToPlace = {
-         posX : 0,
-         posY: 0,
-         showStats: true,
-         url: imgURL,
-         name,
-         maxHealth: maxH,
-         saveThrows
-      };
-      // characters.push({
-      //    posX : 0,
-      //    posY: 0,
-      //    showStats: true,
-      //    url: imgURL,
-      //    name,
-      //    maxHealth: maxH,
-      //    saveThrows
-      // });
-      // updateServerChars();
-      // redrawAll();
-
-   }
+      }
+   });
 }
 
 function findInDict(url){
@@ -496,12 +517,23 @@ function setupUsername(){
       console.log(val);
       username = val;
    }else{
-      var un = prompt("Please enter your username: ", "");
-      if(un!=null){
-         username = un;
-         document.cookie = `username=${un}`;
-         // console.log(getCookieValue("username"));
-      }
+      // var un = prompt("Please enter your username: ", "");
+      swal({
+         text: "Please enter your username:",
+         content: {
+            element: "input",
+            attributes:{
+               placeholder: "Boblin",
+            }
+         }
+      })
+      .then(un=>{
+         if(un!=null){
+            username = un;
+            document.cookie = `username=${un}`;
+            // console.log(getCookieValue("username"));
+         }
+      });
    }
 }
 
@@ -762,12 +794,23 @@ function help(){
 
 function changeUsername(){
    var val = getCookieValue("username");
-   var un = prompt("Please enter your username: ", "");
-   if(un!=null){
-      username = un;
-      document.cookie = `username=${un}`;
-      sendNameChange(val, un);
-   }
+   // var un = prompt("Please enter your username: ", "");
+   swal({
+      text: "Please enter your username:",
+      content: {
+         element: "input",
+         attributes:{
+            placeholder: "Boblin",
+         }
+      }
+   })
+   .then(un=>{
+      if(un!=null){
+         username = un;
+         document.cookie = `username=${un}`;
+         sendNameChange(val, un);
+      }
+   });
 }
 
 function removeChar(){
