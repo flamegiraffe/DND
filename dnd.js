@@ -194,20 +194,73 @@ var addCharButton ={
    show: false,
    fnc: function(butt) {
       clickedOnButton = true;
-      var name = prompt("Please enter character's name: ", "Robert Baratheon");
-      if(name!=null){
-         var url = prompt("Please enter image url", "");
-         if(url!=null){
-            var health = prompt("Please enter maximum health: ", "50");
-            if(health!=null){
-               var saveThrows = prompt("Please enter saving throws", "+1/+1/+1");
-               if(saveThrows!=null){
-                  createNewChar(name, url, health, saveThrows);
-               }
+      swal({
+         text: "Please enter character's name:",
+         content: {
+            element: "input",
+            attributes:{
+               placeholder: "Gandalf",
             }
-
          }
-      }
+      })
+      .then((name)=>{
+         if(name!=null){
+            swal({
+               text: "Please enter image url:",
+               content: {
+                  element: "input",
+                  attributes:{
+                     placeholder: "https://data.whicdn.com/images/48395905/original.jpg",
+                  }
+               }
+            })
+            .then(url => {
+               if(url!=null){
+                  swal({
+                     text: "Please enter maximum health:",
+                     content: {
+                        element: "input",
+                        attributes:{
+                           placeholder: "14",
+                        }
+                     }
+                  })
+                  .then(health =>{
+                     if(health!=null){
+                        swal({
+                           text: "Please enter saving throws:",
+                           content: {
+                              element: "input",
+                              attributes:{
+                                 placeholder: "+1/+1/+1",
+                              }
+                           }
+                        })
+                        .then(saves=>{
+                           if(saves!=null){
+                              createNewChar(name, url, health, saveThrows);
+                           }
+                        });
+                     }
+                  });
+               }
+            });
+         }
+      });
+      // var name = prompt("Please enter character's name: ", "Robert Baratheon");
+      // if(name!=null){
+      //    var url = prompt("Please enter image url", "");
+      //    if(url!=null){
+      //       var health = prompt("Please enter maximum health: ", "50");
+      //       if(health!=null){
+      //          var saveThrows = prompt("Please enter saving throws", "+1/+1/+1");
+      //          if(saveThrows!=null){
+                  // createNewChar(name, url, health, saveThrows);
+      //          }
+      //       }
+      //
+      //    }
+      // }
    }
 };
 var downloadMap ={

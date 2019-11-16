@@ -19,7 +19,12 @@ var lobbyDef = {
    fcn: function(){
       swal({
          text: "Please enter password",
-         content: "input",
+         content: {
+            element: "input",
+            attributes:{
+               type: "password",
+            }
+         }
       })
       .then((inp)=>{
          if (inp != null) {
@@ -58,7 +63,12 @@ var newLobby = {
          if(lb!=null){
             swal({
                text: "Please enter new password",
-               content: "input"
+               content: {
+                  element: "input",
+                  attributes:{
+                     type: "password",
+                  }
+               }
             }).then((pw)=>{
                if(pw!=null){
                   jQuery.post("/makelobby", {lobby: lb, pass: pw}, (data, status) => {
@@ -300,7 +310,12 @@ function lobbyButton(lobbyName){
    console.log(lobbyName);
    swal({
       text: "Please enter password",
-      content: "input",
+      content: {
+         element: "input",
+         attributes:{
+            type: "password",
+         }
+      }
    })
    .then((inp)=>{
       if (inp != null) {
