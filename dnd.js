@@ -761,7 +761,7 @@ function uploadFile(file){ //for uploading maps or characters
                   key: rec.url,
                   value: img
                });
-               drawChars();
+               redrawAll();
                // characters.push({
                //    posX : 0,
                //    posY: 0,
@@ -806,6 +806,7 @@ function uploadFile(file){ //for uploading maps or characters
             // updateServerChars();
             // redrawAll();
          }
+         updateServerChars();
       }
    }
 }
