@@ -16,6 +16,7 @@
    border: 2px solid var(--black);
    font-size: 1.5vh;
    border-radius: 0.4vh;
+   cursor: pointer;
 }
 #log{
    background-color: var(--white);
@@ -23,6 +24,7 @@
    border: 1px solid var(--gold);
    font-size: 1.5vh;
    border-radius: 0.4vh;
+   cursor: pointer;
 }
 #roll{
    background-color: var(--white);
@@ -30,6 +32,7 @@
    border: 1px solid var(--gold);
    font-size: 2vh;
    border-radius: 0.4vh;
+   cursor: pointer;
 }
 #rollInp{
    background-color: var(--white);
