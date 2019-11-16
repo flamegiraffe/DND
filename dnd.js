@@ -761,15 +761,6 @@ function uploadFile(file){ //for uploading maps or characters
                   key: rec.url,
                   value: img
                });
-               charToPlace = {
-                  posX : 0,
-                  posY: 0,
-                  showStats: rec.showStats,
-                  url: rec.url,
-                  name: rec.name,
-                  maxHealth: rec.maxHealth,
-                  saveThrows: rec.saveThrows
-               };
                // characters.push({
                //    posX : 0,
                //    posY: 0,
@@ -782,6 +773,15 @@ function uploadFile(file){ //for uploading maps or characters
                // updateServerChars();
                // redrawAll();
             });
+            charToPlace = {
+               posX : 0,
+               posY: 0,
+               showStats: rec.showStats,
+               url: rec.url,
+               name: rec.name,
+               maxHealth: rec.maxHealth,
+               saveThrows: rec.saveThrows
+            }
          }else{
             var img = characterImgDict[findInDict(rec.url)].value;
             charToPlace = {
