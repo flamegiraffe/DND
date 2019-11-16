@@ -17,16 +17,31 @@ var lobbyDef = {
    width: 100,
    height: 25,
    fcn: function(){
-      var inp = prompt("Please enter password", "");
-      if (inp != null) {
-         jQuery.post("/checkpass", {lobby: lobbyName, pass: inp}, (data, status) => {
-            if(data.status!==200){
-               console.log(data.status);
-            }else{
-               document.location.href = "/"+data.hexCode;
-            }
-         });
-      }
+      swal({
+         text: "Please enter password",
+         content: "input",
+      })
+      .then((inp)=>{
+         if (inp != null) {
+            jQuery.post("/checkpass", {lobby: lobbyName, pass: inp}, (data, status) => {
+               if(data.status!==200){
+                  console.log(data.status);
+               }else{
+                  document.location.href = "/"+data.hexCode;
+               }
+            });
+         }
+      });
+      // var inp = prompt("Please enter password", "");
+      // if (inp != null) {
+      //    jQuery.post("/checkpass", {lobby: lobbyName, pass: inp}, (data, status) => {
+      //       if(data.status!==200){
+      //          console.log(data.status);
+      //       }else{
+      //          document.location.href = "/"+data.hexCode;
+      //       }
+      //    });
+      // }
    }
 };
 var newLobby = {
@@ -35,20 +50,42 @@ var newLobby = {
    width: 0.15,
    height: 0.1,
    fcn: function(){
-      var lb = prompt("Please enter new lobby name", "");
-      if(lb!=null){
-         var pw = prompt("Please enter new password", "");
-         if(pw!=null){
-            jQuery.post("/makelobby", {lobby: lb, pass: pw}, (data, status) => {
-               // console.log(data);
-               if(data.status!==200){
-                  console.log(data.status);
-               }else{
-                  document.location.href = "/"+data.hexCode;
+      swal({
+         text: "Please enter new lobby name",
+         content: "input",
+      })
+      .then((lb)=>{
+         if(lb!=null){
+            swal({
+               text: "Please enter new password",
+               content: "input"
+            }).then((pw)=>{
+               if(pw!=null){
+                  jQuery.post("/makelobby", {lobby: lb, pass: pw}, (data, status) => {
+                     if(data.status!==200){
+                        console.log(data.status);
+                     }else{
+                        document.location.href = "/"+data.hexCode;
+                     }
+                  });
                }
             });
          }
-      }
+      });
+      // var lb = prompt("Please enter new lobby name", "");
+      // if(lb!=null){
+      //    var pw = prompt("Please enter new password", "");
+      //    if(pw!=null){
+      //       jQuery.post("/makelobby", {lobby: lb, pass: pw}, (data, status) => {
+      //          // console.log(data);
+      //          if(data.status!==200){
+      //             console.log(data.status);
+      //          }else{
+      //             document.location.href = "/"+data.hexCode;
+      //          }
+      //       });
+      //    }
+      // }
    }
 }
 
@@ -261,16 +298,31 @@ function drawScrollbar(){
 
 function lobbyButton(lobbyName){
    console.log(lobbyName);
-   var inp = prompt("Please enter password", "");
-   if (inp != null) {
-      jQuery.post("/checkpass", {lobby: lobbyName, pass: inp}, (data, status) => {
-         if(data.status!==200){
-            console.log(data.status);
-         }else{
-            document.location.href = "/"+data.hexCode;
-         }
-      });
-   }
+   swal({
+      text: "Please enter password",
+      content: "input",
+   })
+   .then((inp)=>{
+      if (inp != null) {
+         jQuery.post("/checkpass", {lobby: lobbyName, pass: inp}, (data, status) => {
+            if(data.status!==200){
+               console.log(data.status);
+            }else{
+               document.location.href = "/"+data.hexCode;
+            }
+         });
+      }
+   });
+   // var inp = prompt("Please enter password", "");
+   // if (inp != null) {
+   //    jQuery.post("/checkpass", {lobby: lobbyName, pass: inp}, (data, status) => {
+   //       if(data.status!==200){
+   //          console.log(data.status);
+   //       }else{
+   //          document.location.href = "/"+data.hexCode;
+   //       }
+   //    });
+   // }
 }
 
 function drawNewLobby(){
