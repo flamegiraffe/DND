@@ -134,7 +134,8 @@ io.on('connection', function(socket) {
                   request: data.request,
                   map: db[i].map
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }else if(data.request === "getDoors"){
@@ -148,7 +149,8 @@ io.on('connection', function(socket) {
                   request: data.request,
                   doors: db[i].doors
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }else if(data.request === "updateWalls"){
@@ -160,7 +162,8 @@ io.on('connection', function(socket) {
                   request: data.request,
                   map: db[i].map
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }else if(data.request === "updateDoors"){
@@ -172,7 +175,8 @@ io.on('connection', function(socket) {
                   request: data.request,
                   doors: db[i].doors
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }else if(data.request === "updateChars"){
@@ -184,7 +188,8 @@ io.on('connection', function(socket) {
                   request: data.request,
                   characters: db[i].chars
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }else if(data.request === "getChars"){
@@ -199,7 +204,8 @@ io.on('connection', function(socket) {
                   request: data.request,
                   characters: db[i].chars
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }else if(data.request === "roll"){
@@ -211,18 +217,21 @@ io.on('connection', function(socket) {
                   rolls: data.rolls,
                   user: data.user,
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }else if(data.request === "join"){
          for(var i = 0; i<db.length; i++){
             if(db[i].hexCode === data.hexC){
+               socket.join(db[i].hexCode);
                var toSend = {
                   status: "success",
                   request: data.request,
                   user: data.user,
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }else if(data.request === "name"){
@@ -234,7 +243,8 @@ io.on('connection', function(socket) {
                   name1: data.name1,
                   name2: data.name2
                };
-               io.emit('message', toSend);
+               io.in(db[i].hexCode).emit('message', toSend);
+               // io.emit('message', toSend);
             }
          }
       }

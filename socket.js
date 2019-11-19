@@ -16,6 +16,7 @@ function setupSocket(){
       console.log(msg);
       // window.alert(msg); // delete eventually because unneeded
    });
+
    ws.on('message', msg => {
       onServerMessage(msg);
    });

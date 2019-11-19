@@ -490,11 +490,16 @@ function setup() {
    setupButtons();
    setupRollTab();
    setupLog();
-   getDoors();
-   getMap();
    redrawAll();
-   setupUsername();
-   notifyJoin();
+   // notifyJoin();
+   setupUsername(); //then notify join
+   // getDoors();
+   // getMap();
+   // redrawAll();
+   // setupUsername();
+   // getDoors();
+   // getMap();
+   // redrawAll();
 }
 
 function notifyJoin() {
@@ -526,6 +531,7 @@ function setupUsername() {
    if (val != "") {
       console.log(val);
       username = val;
+      notifyJoin();
    } else {
       // var un = prompt("Please enter your username: ", "");
       swal({
@@ -543,6 +549,9 @@ function setupUsername() {
                document.cookie = `username=${un}`;
                // console.log(getCookieValue("username"));
             }
+         })
+         .then(()=>{
+            notifyJoin();
          });
    }
 }
@@ -689,6 +698,9 @@ function onServerMessage(msg) {
          myLog(msg);
       } else if (msg.request === "join") {
          myLog(msg);
+         getMap();
+         getDoors();
+         redrawAll();
       } else if (msg.request === "name") {
          myLog(msg);
       }

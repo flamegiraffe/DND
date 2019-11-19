@@ -351,6 +351,7 @@ function drawNewLobby(){
    // button.style('font-size', '40px');
    // button.style('font-family', 'morrisroman-black');
    // button.style('border', '2px solid ' + coolors.black);
+   button.style('cursor', 'pointer');
    button.mousePressed(newLobby.fcn);
    // redrawAll();
 }
