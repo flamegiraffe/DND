@@ -28,6 +28,7 @@
    font-family: morrisroman-black;
    border-radius: 1vh;
    border: 3px solid var(--white);
+   cursor: pointer;
 }
 
 #NewLobby:hover {
@@ -43,6 +44,7 @@
    font-size: 3vh;
    border-radius: 1vh;
    border: 2px solid var(--rasp);
+   cursor: pointer;
 }
 #refresh:hover {
    border: 2px solid var(--gold);
@@ -55,6 +57,7 @@
    border-radius: 1vh;
    outline: none;
    border: 4px solid var(--mar);
+   cursor: pointer;
 }
 
 .lobbybutton:hover{

@@ -225,6 +225,8 @@ io.on('connection', function(socket) {
          for(var i = 0; i<db.length; i++){
             if(db[i].hexCode === data.hexC){
                socket.join(db[i].hexCode);
+               db[i].numPlayers++;
+               db[i].lastAccessed = Date.now();
                var toSend = {
                   status: "success",
                   request: data.request,
@@ -247,6 +249,28 @@ io.on('connection', function(socket) {
                // io.emit('message', toSend);
             }
          }
+      }else if(data.request === "leave"){
+         for(var i = 0; i<db.length; i++){
+            if(db[i].hexCode === data.hexC){
+               socket.leave(db[i].hexCode);
+               db[i].numPlayers--;
+               console.log("number of players left:", db[i].numPlayers);
+               if(db[i].numPlayers==0){
+                  db[i].lastAccessed = Date.now();
+                  setTimeout(()=>{
+                     endLobby(data.hexC);
+                  }, 300000);
+               }else{
+                  var toSend = {
+                     status: "success",
+                     request: data.request,
+                     user: data.user,
+                  };
+                  io.in(db[i].hexCode).emit('message', toSend);
+                  // io.emit('message', toSend);
+               }
+            }
+         }
       }
    }else{
       console.log("data.request undefined");
@@ -262,6 +286,23 @@ io.on('connection', function(socket) {
      console.log("client disconnected");
   });
 });
+
+function endLobby(hexC){
+   for(var i = 0; i<db.length; i++){
+      if(db[i].hexCode === hexC){
+         if(db[i].numPlayers==0){
+            if(Date.now()-db[i].lastAccessed>280000){
+               db.splice(i, 1);
+               deregisterLobby(hexC);
+            }else{
+               setTimeout(()=>{
+                  endLobby(hexC);
+               }, 300000-(Date.now()-db[i].lastAccessed));
+            }
+         }
+      }
+   }
+}
 
 function generateHex(lobby, pass){
    var lobbyE, passE;
@@ -335,6 +376,23 @@ function checkHexCode(lobby, pass){
    }
 }
 
+function deregisterLobby(hexC){
+   for(var i = 0; i<app._router.stack.length; i++){
+      var r = app._router.stack[i].route;
+      if((typeof r) != "undefined"){
+         if(r.path=="/"+hexC){
+            console.log("spliced paths");
+            app._router.stack.splice(i, 1);
+         }
+      }
+   }
+   console.log(app._router.stack);
+   // app.get(`/${hexC}`, (req, res) => {
+   //   res.send("Lobby has closed");
+   // });
+   console.log("deregistering lobby");
+}
+
 function registerNewLobby(lobby, pass){
    var hexC = generateHex(lobby, pass);
    app.get(`/${hexC}`, (req, res) => {
@@ -344,7 +402,8 @@ function registerNewLobby(lobby, pass){
       lobby,
       hexCode: hexC,
       map: [],
-      characters: []
+      characters: [],
+      numPlayers: 0
    });
    return hexC;
    // lobbies.push(lobby);

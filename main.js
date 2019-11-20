@@ -178,34 +178,49 @@ function setupRefresh(){
 
 function setupLobbyButtons(){
    var numOB;
-   if(lobbies.length>lobbyBack.lines){
+   if(lobbies.length>lobbyBack.lines){ //will need scrollbar
       numOB = lobbyBack.lines;
       scrollbar.needScrollbar = true;
-   }else{
+   }else{ //don't need scrollbar
       numOB = lobbies.length;
       scrollbar.needScrollbar = false;
    }
-   for(var i=buttons.length; i<numOB; i++){
-      let button = createButton("Lobby name: " + lobbies[i]);
-      var w = window.innerWidth;
-      var h = window.innerHeight;
-      button.size(
-         (lobbyBack.width-lobbyBack.bufferW)*w*2,
-         (((lobbyBack.height-lobbyBack.bufferH)*h*2)/lobbyBack.lines)-(lobbyBack.lines-1)*lobbyBack.lineBuffer * h
-      );
-      button.position(
-         (w/2)-(lobbyBack.width*w)+lobbyBack.bufferW*w,
-         ((h*lobbyBack.hm) - lobbyBack.height * h)
-         +lobbyBack.bufferH * h
-         +((lobbyBack.height-lobbyBack.bufferH)*h*2*i/lobbyBack.lines)
-         +i*lobbyBack.lineBuffer * h
-      );
-      button.class('lobbybutton');
-      button.mousePressed(() => {
-         lobbyButton(button.html().substring(button.html().lastIndexOf(":")+2,));
-      });
-      buttons.push(button);
+   if(buttons.length<lobbies.length){ //need more buttons
+      for(var i=buttons.length; i<numOB; i++){
+         let button = createButton("Lobby name: " + lobbies[i]);
+         var w = window.innerWidth;
+         var h = window.innerHeight;
+         button.size(
+            (lobbyBack.width-lobbyBack.bufferW)*w*2,
+            (((lobbyBack.height-lobbyBack.bufferH)*h*2)/lobbyBack.lines)-(lobbyBack.lines-1)*lobbyBack.lineBuffer * h
+         );
+         button.position(
+            (w/2)-(lobbyBack.width*w)+lobbyBack.bufferW*w,
+            ((h*lobbyBack.hm) - lobbyBack.height * h)
+            +lobbyBack.bufferH * h
+            +((lobbyBack.height-lobbyBack.bufferH)*h*2*i/lobbyBack.lines)
+            +i*lobbyBack.lineBuffer * h
+         );
+         button.class('lobbybutton');
+         button.mousePressed(() => {
+            lobbyButton(button.html().substring(button.html().lastIndexOf(":")+2,));
+         });
+         buttons.push(button);
+      }
+   }else if (buttons.length==lobbies.length){
+      for(var i = 0; i<buttons.length; i++){
+         buttons[i].html("Lobby name: " + lobbies[i]);
+      }
+   }else{ //fewer lobbies than buttons
+      for(var i = buttons.length-1; i>=lobbies.length; i--){
+         buttons[i].remove();
+         buttons.splice(i, 1);
+      }
+      for(var i = 0; i<buttons.length; i++){
+         buttons[i].html("Lobby name: " + lobbies[i]);
+      }
    }
+
    setupScrollbar();
 }
 
@@ -351,7 +366,6 @@ function drawNewLobby(){
    // button.style('font-size', '40px');
    // button.style('font-family', 'morrisroman-black');
    // button.style('border', '2px solid ' + coolors.black);
-   button.style('cursor', 'pointer');
    button.mousePressed(newLobby.fcn);
    // redrawAll();
 }

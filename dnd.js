@@ -491,15 +491,7 @@ function setup() {
    setupRollTab();
    setupLog();
    redrawAll();
-   // notifyJoin();
    setupUsername(); //then notify join
-   // getDoors();
-   // getMap();
-   // redrawAll();
-   // setupUsername();
-   // getDoors();
-   // getMap();
-   // redrawAll();
 }
 
 function notifyJoin() {
@@ -703,6 +695,8 @@ function onServerMessage(msg) {
          redrawAll();
       } else if (msg.request === "name") {
          myLog(msg);
+      } else if (msg.request === "leave") {
+         myLog(msg);
       }
    }
 }
@@ -718,6 +712,8 @@ function myLog(msg) {
       newEntry = msg.user + " joined the lobby";
    } else if (msg.request === "name") {
       newEntry = msg.name1 + " changed name to " + msg.name2;
+   } else if (msg.request === "leave") {
+      newEntry = msg.user + " left the lobby";
    }
    logEntries[mlogProps.lines - 1] = newEntry;
    redrawAll();
@@ -1352,3 +1348,12 @@ function mouseDragged(){
 
    }
 }
+
+window.addEventListener('beforeunload', function(event) {
+   var toSend = {
+      request: "leave",
+      hexC: myHexC,
+      user: username,
+   };
+   socketSend(toSend);
+});
