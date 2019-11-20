@@ -95,6 +95,8 @@ var mlogProps = {
    textBufferH: 0.1,
    textBufferW: 0.05,
    lines: 4,
+   backDiv: null,
+   lineElts: [],
    toggleLog: function() {
       clickedOnButton = true;
       mlogProps.showLog = !mlogProps.showLog;
@@ -512,9 +514,21 @@ function setupLog() {
    logButton.size(mlogProps.buttonWidthP * w, mlogProps.buttonHeightP * h);
    logButton.id('log');
    logButton.mousePressed(mlogProps.toggleLog);
-
+   mlogProps.backDiv = createDiv('');
+   mlogProps.backDiv.id('logBack');
+   mlogProps.backDiv.position(0, (1 - 2 * mlogProps.buttonBufferH - mlogProps.buttonHeightP) * h);
+   mlogProps.backDiv.size(w * (2 * mlogProps.buttonBufferW + mlogProps.buttonWidthP), h * (2 * mlogProps.buttonBufferH + mlogProps.buttonHeightP));
+   // logButton.parent(mlogProps.backDiv);
+   // $(".logLine").css('padding-top', (mlogProps.textBufferH*h) + 'px');
+   // $(".logLine").css('padding-bottom', (mlogProps.textBufferH*h) + 'px');
    for (var i = 0; i < mlogProps.lines; i++) {
       logEntries.push("");
+      mlogProps.lineElts.push(createElement('p', ''));
+      mlogProps.lineElts[i].addClass("logLine");
+      // mlogProps.lineElts[i].style('height', h * (1-2 * mlogProps.textBufferH) * mlogProps.heightP / mlogProps.lines + 'px');
+      mlogProps.lineElts[i].addClass("hide");
+      mlogProps.lineElts[i].position(w * (mlogProps.buttonBufferW + mlogProps.buttonWidthP + mlogProps.widthP * mlogProps.textBufferW), h * (1 - mlogProps.textBufferH * mlogProps.heightP - (mlogProps.lines - i) * (1 - 2 * mlogProps.textBufferH) * mlogProps.heightP / mlogProps.lines));
+      mlogProps.lineElts[i].size(w*mlogProps.widthP, h * (1-2 * mlogProps.textBufferH) * mlogProps.heightP / mlogProps.lines);
    }
 }
 
@@ -1120,9 +1134,11 @@ function drawLog() {
    if (mlogProps.showLog) {
       textAlign(LEFT);
       strokeWeight(2);
-      stroke(coolors.gold);
-      fill(coolors.ddblue);
-      rect(0, (1 - mlogProps.buttonBufferH - mlogProps.heightP) * h, w * (mlogProps.buttonBufferW + mlogProps.widthP), h * (mlogProps.buttonBufferH + mlogProps.heightP));
+      // stroke(coolors.gold);
+      // fill(coolors.ddblue);
+      // rect(0, (1 - mlogProps.buttonBufferH - mlogProps.heightP) * h, w * (mlogProps.buttonBufferW + mlogProps.widthP), h * (mlogProps.buttonBufferH + mlogProps.heightP));
+      mlogProps.backDiv.position(0, (1 - mlogProps.buttonBufferH - mlogProps.heightP) * h);
+      mlogProps.backDiv.size(w * (mlogProps.buttonBufferW + mlogProps.widthP), h * (mlogProps.buttonBufferH + mlogProps.heightP));
       strokeWeight(1);
 
       // textFont(mlogProps.logFont);
@@ -1131,16 +1147,21 @@ function drawLog() {
       textSize(((mlogProps.heightP * (1 - mlogProps.textBufferH * 2)) * h) / mlogProps.lines);
       fill(coolors.white);
       noStroke();
+      $(".logLine").removeClass("hide");
       for (var i = 0; i < mlogProps.lines; i++) {
-         text(logEntries[i],
-            w * (mlogProps.buttonBufferW + mlogProps.buttonWidthP + mlogProps.widthP * mlogProps.textBufferW),
-            h * (1 - (mlogProps.lines - i) * (1 - 2 * mlogProps.textBufferH) * mlogProps.heightP / mlogProps.lines));
+         mlogProps.lineElts[i].html(logEntries[i]);
+         // text(logEntries[i],
+         //    w * (mlogProps.buttonBufferW + mlogProps.buttonWidthP + mlogProps.widthP * mlogProps.textBufferW),
+         //    h * (1 - (mlogProps.lines - i) * (1 - 2 * mlogProps.textBufferH) * mlogProps.heightP / mlogProps.lines));
       }
    } else {
       strokeWeight(2);
-      stroke(coolors.black);
-      fill(coolors.ddblue);
-      rect(0, (1 - 2 * mlogProps.buttonBufferH - mlogProps.buttonHeightP) * h, w * (2 * mlogProps.buttonBufferW + mlogProps.buttonWidthP), h * (2 * mlogProps.buttonBufferH + mlogProps.buttonHeightP));
+      mlogProps.backDiv.position(0, (1 - 2 * mlogProps.buttonBufferH - mlogProps.buttonHeightP) * h);
+      mlogProps.backDiv.size(w * (2 * mlogProps.buttonBufferW + mlogProps.buttonWidthP), h * (2 * mlogProps.buttonBufferH + mlogProps.buttonHeightP));
+      $(".logLine").addClass("hide");
+      // stroke(coolors.black);
+      // fill(coolors.ddblue);
+      // rect(0, (1 - 2 * mlogProps.buttonBufferH - mlogProps.buttonHeightP) * h, w * (2 * mlogProps.buttonBufferW + mlogProps.buttonWidthP), h * (2 * mlogProps.buttonBufferH + mlogProps.buttonHeightP));
       strokeWeight(1);
    }
 }
@@ -1328,7 +1349,7 @@ function mouseWheel(event) {
    if (event.delta > 0) {
       gridSpacing += zoomSpeed;
    } else {
-      gridSpacing > zoomSpeed ? gridSpacing -= zoomSpeed : null;
+      gridSpacing > 10 ? gridSpacing -= zoomSpeed : null;
    }
    redrawAll();
 }
@@ -1343,9 +1364,7 @@ function mouseDragged(){
 
       xOff = xOffStart + idx;
       yOff = yOffStart + idy;
-
       redrawAll();
-
    }
 }
 
